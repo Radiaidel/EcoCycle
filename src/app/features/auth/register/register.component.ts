@@ -32,17 +32,17 @@ export class RegisterComponent {
 
   onSubmit() {
     if (this.registerForm.invalid) {
-      this.notificationService.showMessage("Please fill in all required fields.");
+      this.notificationService.showMessage("Please fill in all required fields." , 'error');
       return;
     }
 
     const isRegistered = this.authService.registerUser(this.registerForm.value);
 
     if (isRegistered) {
-      this.notificationService.showMessage("Registration successful! 🎉");
+      this.notificationService.showMessage("Registration successful! 🎉" , 'success');
       this.registerForm.reset();
     } else {
-      this.notificationService.showMessage("Email is already taken!");
+      this.notificationService.showMessage("Email is already taken!" , 'error');
     }
   }
 }

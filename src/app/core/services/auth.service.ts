@@ -28,4 +28,21 @@ export class AuthService {
     localStorage.setItem(AuthService.USERS_KEY, JSON.stringify(users));
     return true; 
   }
+  login(email: string, password: string): boolean {
+    const user = this.getUsers().find((user: any) => user.email === email && user.password === password);
+    
+    if (user) {
+      localStorage.setItem('currentUser', JSON.stringify(user));
+      return true;
+    }
+    return false;
+  }
+
+  logout(): void {
+    localStorage.removeItem('currentUser');
+  }
+
+  isLoggedIn(): boolean {
+    return !!localStorage.getItem('currentUser');
+  }
 }
