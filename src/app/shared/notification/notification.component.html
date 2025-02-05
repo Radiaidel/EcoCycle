@@ -1,1 +1,7 @@
-<p>notification works!</p>
+<div 
+  *ngIf="notificationService.message$ | async as message" 
+  class="fixed top-5 right-5 bg-[#F9F9FB] text-gray-900 px-6 py-3 rounded-xl shadow-2xl border border-green-600 transition-all duration-500 transform"
+  [class.translate-x-full]="!message"
+>
+  {{ message }}
+</div>
