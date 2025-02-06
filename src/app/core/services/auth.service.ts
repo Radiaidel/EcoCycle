@@ -8,6 +8,7 @@ import { User } from '../models/user';
 export class AuthService {
   private static USERS_KEY = 'users';
 
+  
   constructor() {}
 
   getUsers(): User[] {
@@ -44,5 +45,19 @@ export class AuthService {
 
   isLoggedIn(): boolean {
     return !!localStorage.getItem('currentUser');
+  }
+  getCurrentUser(): User | null {
+    const user = localStorage.getItem('currentUser');
+    return user ? JSON.parse(user) : null;
+  }
+
+  getUserProfileImage(): string  {
+    const user = this.getCurrentUser();
+    return user?.profilePicture || "https://www.shutterstock.com/image-vector/user-profile-icon-vector-avatar-600nw-2247726673.jpg"; 
+  }
+
+  getUserRole(): string {
+    const user = this.getCurrentUser();
+    return user?.role || 'user'; // Assuming a role (e.g., 'collecteur' or 'particulier') in the user model
   }
 }
