@@ -1,49 +1,63 @@
-import { Component } from '@angular/core';
-import { AuthService } from '../../core/services/auth.service';
-import { Router } from '@angular/router';
-import { NgIf } from '@angular/common';
+import { Component, type OnInit, type OnDestroy } from "@angular/core"
+import { CommonModule } from "@angular/common"
+import { Router, RouterModule } from "@angular/router"
+import type { Subscription } from "rxjs"
+import { AuthService } from "../../core/services/auth.service"
 
 @Component({
-  selector: 'app-header',
+  selector: "app-header",
   standalone: true,
-  imports: [NgIf],
-  templateUrl: './header.component.html',
-  styleUrls: ['./header.component.css']
+  imports: [CommonModule, RouterModule],
+  templateUrl: "./header.component.html",
+  styleUrls: ["./header.component.css"],
 })
-export class HeaderComponent {
-  isLoggedIn = false;
-  isDropdownOpen = false;
-  isMobileMenuOpen = false;
-  userProfileImage = '';
+export class HeaderComponent implements OnInit, OnDestroy {
+  isLoggedIn = false
+  isDropdownOpen = false
+  isMobileMenuOpen = false
+  userProfileImage = ""
+  private authSubscription: Subscription | null = null
 
   constructor(
     private authService: AuthService,
-    private router: Router
+    private router: Router,
   ) {}
 
   ngOnInit() {
-    this.isLoggedIn = this.authService.isLoggedIn();
-    if (this.isLoggedIn) {
-      this.userProfileImage = this.authService.getUserProfileImage();
+    this.updateAuthState()
+    this.authSubscription = this.authService.authState$.subscribe(() => {
+      this.updateAuthState()
+    })
+  }
+
+  ngOnDestroy() {
+    if (this.authSubscription) {
+      this.authSubscription.unsubscribe()
     }
   }
 
+  private updateAuthState() {
+    this.isLoggedIn = this.authService.isLoggedIn()
+    this.userProfileImage = this.authService.getUserProfileImage()
+  }
+
   toggleDropdown() {
-    this.isDropdownOpen = !this.isDropdownOpen;
+    this.isDropdownOpen = !this.isDropdownOpen
   }
 
   toggleMobileMenu() {
-    this.isMobileMenuOpen = !this.isMobileMenuOpen;
+    this.isMobileMenuOpen = !this.isMobileMenuOpen
   }
 
   logout() {
-    this.authService.logout();
-    this.isLoggedIn = false;
-    this.router.navigate(['/login']);
+    this.authService.logout()
+    this.router.navigate(["/login"])
   }
 
   navigateTo(path: string) {
-    this.router.navigate([path]);
-    this.isMobileMenuOpen = false;
+    this.router.navigate([path])
+    this.isMobileMenuOpen = false
+    this.isDropdownOpen = false
   }
 }
+

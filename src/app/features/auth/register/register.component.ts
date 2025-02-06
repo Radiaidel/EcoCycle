@@ -1,10 +1,10 @@
-// src/app/components/register/register.component.ts
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../../../core/services/auth.service';
 import { NotificationComponent } from '../../../shared/notification/notification.component';
 import { CommonModule, NgIf } from '@angular/common';
 import { NotificationService } from '../../../core/services/notification.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-register',
@@ -17,12 +17,13 @@ export class RegisterComponent {
   registerForm: FormGroup;
 
 
-  constructor(private fb: FormBuilder, private authService: AuthService , private notificationService: NotificationService) {
+  constructor(private fb: FormBuilder, private authService: AuthService , private notificationService: NotificationService , private route: Router) {
     this.registerForm = this.fb.group({
       fullName: ['', [Validators.required, Validators.minLength(3)]],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
       role: ['particulier'],
+      points: [0]
     });
   }
 
@@ -41,6 +42,7 @@ export class RegisterComponent {
     if (isRegistered) {
       this.notificationService.showMessage("Registration successful! 🎉" , 'success');
       this.registerForm.reset();
+      this.route.navigate(['/login']);
     } else {
       this.notificationService.showMessage("Email is already taken!" , 'error');
     }

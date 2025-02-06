@@ -7,8 +7,9 @@ export interface User {
     address: string;
     city: string;
     phone: string;
-    birthDate: Date;
+    birthDate: string;
     profilePicture?: string;  // Optionnel
     role: 'particulier' | 'collecteur';
+    points: number | 0;
   }
   

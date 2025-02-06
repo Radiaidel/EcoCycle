@@ -1,63 +1,83 @@
-// src/app/services/auth.service.ts
 import { Injectable } from '@angular/core';
 import { User } from '../models/user';
+import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
   private static USERS_KEY = 'users';
+  private static CURRENT_USER_KEY = 'currentUser';
+  private authStateSubject = new BehaviorSubject<{ isLoggedIn: boolean; userProfileImage: string }>({
+    isLoggedIn: false,
+    userProfileImage: "",
+  });
 
-  
+  authState$ = this.authStateSubject.asObservable();
+
   constructor() {}
 
-  getUsers(): User[] {
-    const users = localStorage.getItem(AuthService.USERS_KEY);
-    return users ? JSON.parse(users) : [];
+  private getUsers(): User[] {
+    return JSON.parse(localStorage.getItem(AuthService.USERS_KEY) || '[]');
+  }
+
+  private saveUsers(users: User[]): void {
+    localStorage.setItem(AuthService.USERS_KEY, JSON.stringify(users));
   }
 
   isEmailTaken(email: string): boolean {
-    return this.getUsers().some((user) => user.email === email);
+    return this.getUsers().some(user => user.email === email);
   }
 
   registerUser(user: User): boolean {
-    if (this.isEmailTaken(user.email)) {
-      return false; 
-    }
+    if (this.isEmailTaken(user.email)) return false;
     const users = this.getUsers();
     users.push(user);
-    localStorage.setItem(AuthService.USERS_KEY, JSON.stringify(users));
-    return true; 
+    this.saveUsers(users);
+    return true;
   }
+
   login(email: string, password: string): boolean {
-    const user = this.getUsers().find((user: any) => user.email === email && user.password === password);
-    
+    const user = this.getUsers().find(user => user.email === email && user.password === password);
     if (user) {
-      localStorage.setItem('currentUser', JSON.stringify(user));
+      localStorage.setItem(AuthService.CURRENT_USER_KEY, JSON.stringify(user));
+      this.authStateSubject.next({ isLoggedIn: true, userProfileImage: user.profilePicture || '' });
       return true;
     }
     return false;
   }
 
   logout(): void {
-    localStorage.removeItem('currentUser');
+    localStorage.removeItem(AuthService.CURRENT_USER_KEY);
+    this.authStateSubject.next({ isLoggedIn: false, userProfileImage: '' });
   }
 
   isLoggedIn(): boolean {
-    return !!localStorage.getItem('currentUser');
+    return !!localStorage.getItem(AuthService.CURRENT_USER_KEY);
   }
+
   getCurrentUser(): User | null {
-    const user = localStorage.getItem('currentUser');
-    return user ? JSON.parse(user) : null;
+    return JSON.parse(localStorage.getItem(AuthService.CURRENT_USER_KEY) || 'null');
+  }
+
+  updateUserProfileImage(newImageUrl: string): void {
+    const currentUser = this.getCurrentUser();
+    if (currentUser) {
+      currentUser.profilePicture = newImageUrl;
+      this.updateUser(currentUser);
+    }
+  }
+
+  updateUser(updatedUser: User): void {
+    let users = this.getUsers();
+    users = users.map(user => user.email === updatedUser.email ? updatedUser : user);
+    this.saveUsers(users);
+    localStorage.setItem(AuthService.CURRENT_USER_KEY, JSON.stringify(updatedUser));
+    this.authStateSubject.next({ isLoggedIn: true, userProfileImage: updatedUser.profilePicture || '' });
   }
 
   getUserProfileImage(): string  {
     const user = this.getCurrentUser();
     return user?.profilePicture || "https://www.shutterstock.com/image-vector/user-profile-icon-vector-avatar-600nw-2247726673.jpg"; 
-  }
-
-  getUserRole(): string {
-    const user = this.getCurrentUser();
-    return user?.role || 'user'; // Assuming a role (e.g., 'collecteur' or 'particulier') in the user model
   }
 }
