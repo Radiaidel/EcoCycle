@@ -22,9 +22,8 @@
         </ng-container>
 
         <ng-container *ngIf="isLoggedIn">
-          <a routerLink="/home"
-            class="px-3 py-2 hover:text-gray-200">
-            Accueil
+          <a *ngIf="userRole === 'collecteur'" routerLink="/home" class="px-3 py-2 hover:text-gray-200">
+            process-collecte
           </a>
           <a routerLink="/requests"
             class="px-3 py-2 hover:text-gray-200">
@@ -92,9 +91,9 @@
         </ng-container>
 
         <ng-container *ngIf="isLoggedIn">
-          <a routerLink="/home"
-            class="block px-3 py-2 hover:text-green-600">
-            Accueil
+
+          <a *ngIf="userRole === 'collecteur'" routerLink="/home" class="block px-3 py-2 hover:text-green-600">
+            process-collecte
           </a>
           <a routerLink="/requests"
             class="block px-3 py-2 hover:text-green-600">

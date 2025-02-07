@@ -17,6 +17,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   isMobileMenuOpen = false
   userProfileImage = ""
   private authSubscription: Subscription | null = null
+  userRole: string = "";
 
   constructor(
     private authService: AuthService,
@@ -39,6 +40,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private updateAuthState() {
     this.isLoggedIn = this.authService.isLoggedIn()
     this.userProfileImage = this.authService.getUserProfileImage()
+    this.userRole = this.authService.getCurrentUser()?.role || ""; 
   }
 
   toggleDropdown() {
