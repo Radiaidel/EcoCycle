@@ -54,10 +54,19 @@ export const validateTotalWeight = createAction(
   props<{ request: CollectRequest }>(),
 )
 
-export const validateTotalWeightSuccess = createAction("[Collect Request] Validate Total Weight Success")
 
-export const validateTotalWeightFailure = createAction(
-  "[Collect Request] Validate Total Weight Failure",
-  props<{ error: string }>(),
-)
+export const updateRequestStatus = createAction(
+  "[Collect Request] Update Request Status",
+  props<{ requestId: string, status: string }>()
+);
+
+export const updateRequestStatusSuccess = createAction(
+  "[Collect Request] Update Request Status Success",
+  props<{ request: CollectRequest }>()
+);
+
+export const updateRequestStatusFailure = createAction(
+  "[Collect Request] Update Request Status Failure",
+  props<{ error: any }>()
+);
 

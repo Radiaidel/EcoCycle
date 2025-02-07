@@ -45,9 +45,19 @@ export const collectRequestReducer = createReducer(
     ...state,
     searchKeyword: keyword,
   })),
-  on(CollectRequestActions.validateTotalWeightFailure, (state, { error }) => ({
+  on(CollectRequestActions.updateRequestStatus, (state) => ({
     ...state,
-    error,
+    loading: true
   })),
+  on(CollectRequestActions.updateRequestStatusSuccess, (state, { request }) => ({
+    ...state,
+    loading: false,
+    requests: state.requests.map(r => r.id === request.id ? { ...r, status: request.status } : r)
+  })),
+  on(CollectRequestActions.updateRequestStatusFailure, (state, { error }) => ({
+    ...state,
+    loading: false,
+    error
+  }))
 )
 

@@ -8,5 +8,5 @@ export interface CollectRequest {
     preferredDate: Date;
     preferredTime: string;
     notes?: string;
-    status: 'pending' | 'accepted' | 'rejected';
+    status: string | 'pending' | 'accepted' | 'rejected';
   }

@@ -75,5 +75,12 @@ export class RequestListComponent implements OnInit {
       }
     })
   }
+
+
+
+  onStatusChange(requestId: string, event: Event) {
+    this.store.dispatch(CollectRequestActions.updateRequestStatus({ requestId, status:(event.target as HTMLSelectElement).value }));
+  }
+  
 }
 

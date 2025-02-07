@@ -57,7 +57,21 @@ export class CollectRequestEffects {
       ),
     ),
   )
-
+  updateRequestStatus$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(CollectRequestActions.updateRequestStatus),
+      mergeMap(({ requestId, status }) =>
+        this.collectRequestService.updateStatus(requestId, status).pipe(
+          map((updatedRequest) =>
+            CollectRequestActions.updateRequestStatusSuccess({ request: updatedRequest })
+          ),
+          catchError((error) =>
+            of(CollectRequestActions.updateRequestStatusFailure({ error }))
+          )
+        )
+      )
+    )
+  );
   constructor(
     private actions$: Actions,
     private collectRequestService: CollectRequestService,

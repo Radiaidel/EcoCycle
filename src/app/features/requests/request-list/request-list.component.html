@@ -105,13 +105,24 @@
                 class="px-4 py-2 rounded-full text-white text-sm font-semibold"
                 [ngClass]="{
                   'bg-yellow-500': request.status === 'pending',
-                  'bg-green-500': request.status === 'accepted',
+                  'bg-green-600': request.status === 'accepted',
+                  'bg-yellow-800': request.status === 'occupied',
+                  'bg-green-400': request.status === 'in_progress',
                   'bg-red-500': request.status === 'rejected'
                 }"
               >
                 {{ request.status | uppercase }}
               </span>
             </p>
+            <div *ngIf="userRole$ === 'collecteur'" class="flex space-x-2">
+              <select [value]="request.status" (change)="onStatusChange(request.id, $event)">
+                <option value="occupied">occupied</option>
+                <option value="in_progress">in progress</option>
+                <option value="validated">validated</option>
+                <option value="rejected">rejected</option>
+              </select>
+              
+            </div>
           </div>
         </div>
       </div>

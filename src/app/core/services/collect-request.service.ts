@@ -126,4 +126,23 @@ export class CollectRequestService {
     const requests: CollectRequest[] = JSON.parse(storedRequests);
     return requests.find((request) => request.id === id);
   }
+
+  updateStatus(requestId: string, status: string): Observable<CollectRequest> {
+    const storedRequests = localStorage.getItem(CollectRequestService.REQUESTS_KEY);
+    const requests: CollectRequest[] = storedRequests ? JSON.parse(storedRequests) : [];
+  
+    const request = requests.find((req) => req.id === requestId);
+    if (!request) {
+      this.notificationService.showMessage("Request not found.", "error");
+      return of();
+    }
+  
+    request.status = status;
+    localStorage.setItem(CollectRequestService.REQUESTS_KEY, JSON.stringify(requests));
+  
+    this.notificationService.showMessage("Request status successfully updated!", "success");
+    return of(request);
+  }
+  
+  
 }
