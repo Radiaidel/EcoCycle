@@ -1,51 +1,79 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Store } from '@ngrx/store';
-import { map, Observable, Subscription } from 'rxjs';
-import { CollectRequest } from '../../../core/models/collect-request';
-import { addCollectRequest, loadCollectRequests, updateCollectRequest, deleteCollectRequest } from '../../../core/state/collect-request/collect-request.actions';
-import { selectCollectRequests } from '../../../core/state/collect-request/collect-request.selectors';
-import { CollectRequestService } from '../../../core/services/collect-request.service';
-import { AuthService } from '../../../core/services/auth.service';
-import { CommonModule } from '@angular/common';
-import { UserService } from '../../../core/services/user.service';
-import { SearchComponent } from '../../../shared/search-bar/search-bar.component';
-import { RouterLink } from '@angular/router';
+import { Component, type OnInit, type OnDestroy } from "@angular/core"
+import  { Store } from "@ngrx/store"
+import  { Observable, Subscription } from "rxjs"
+import { map } from "rxjs/operators"
+import  { CollectRequest } from "../../../core/models/collect-request"
+import * as CollectRequestActions from "../../../core/state/collect-request/collect-request.actions"
+import * as CollectRequestSelectors from "../../../core/state/collect-request/collect-request.selectors"
+import  { AuthService } from "../../../core/services/auth.service"
+import { CommonModule } from "@angular/common"
+import { SearchComponent } from "../../../shared/search-bar/search-bar.component"
+import {  Router, RouterLink } from "@angular/router"
+import  { CollectRequestService } from "../../../core/services/collect-request.service"
 
 @Component({
-  selector: 'app-collect-request',
-  imports: [CommonModule, ReactiveFormsModule , SearchComponent , RouterLink],
-    templateUrl: './request-list.component.html',
-standalone: true,
+  selector: "app-collect-request-list",
+  templateUrl: "./request-list.component.html",
+  imports: [CommonModule, SearchComponent, RouterLink],
+  standalone: true,
 })
-export class RequestListComponent  {
-  collectRequests: CollectRequest[] = [];
-  filteredRequests: CollectRequest[] = [];
-  private authService = inject(AuthService);
-  private collectRequestService = inject(CollectRequestService)
-  private subscription: Subscription = new Subscription();
+export class RequestListComponent implements OnInit {
+  
+  filteredRequests$: Observable<CollectRequest[]>
+  userRole$: string
+  currentPhotoIndex: { [key: string]: number } = {}
 
-  currentUser = this.authService.getCurrentUser();
-  userRole =  this.currentUser?.role; 
-
-
-  ngOnInit() {
-    const collectRequestsSubscription = this.collectRequestService.getRequestsByUserEmail(this.currentUser?.email ?? '').subscribe((requests) => {
-      this.collectRequests = requests;
-      this.filteredRequests = requests;
-    });
-
-    this.subscription.add(collectRequestsSubscription);
+  constructor(
+    private store: Store,
+    private authService: AuthService,
+    private router: Router,
+  ) {
+    this.filteredRequests$ = this.store.select(CollectRequestSelectors.selectFilteredCollectRequests)
+    this.userRole$ = this.authService.getCurrentUser()?.role || "collecteur"
   }
-  ngOnDestroy() {
-    if (this.subscription) {
-      this.subscription.unsubscribe();
+
+  ngOnInit(): void {
+    this.store.dispatch(CollectRequestActions.loadCollectRequests());
+    this.initializePhotoIndices();
+  }
+
+  initializePhotoIndices(): void {
+    this.filteredRequests$.subscribe(requests => {
+      requests.forEach(request => {
+        if (!this.currentPhotoIndex.hasOwnProperty(request.id)) {
+          this.currentPhotoIndex[request.id] = 0;
+        }
+      });
+    });
+  }
+
+
+  onSearch(keyword: string): void {
+    this.store.dispatch(CollectRequestActions.setSearchKeyword({ keyword }))
+  }
+
+  onDeleteRequest(requestId: string): void {
+    if (confirm("Are you sure you want to delete this request?")) {
+      this.store.dispatch(CollectRequestActions.deleteCollectRequest({ id: requestId }))
     }
   }
-  onSearch(keyword: string) {
-    this.filteredRequests = this.collectRequests.filter((request) =>
-      request.wasteType.some((type) => type.toLowerCase().includes(keyword.toLowerCase()))
-    );
+
+  onEditRequest(request: CollectRequest) {
+    this.router.navigate(["/requests/edit-collect-request", request.id])
   }
 
+  prevPhoto(requestId: string) {
+    if (this.currentPhotoIndex[requestId] > 0) {
+      this.currentPhotoIndex[requestId]--
+    }
+  }
+
+  nextPhoto(requestId: string) {
+    this.filteredRequests$.pipe(map((requests) => requests.find((r) => r.id === requestId))).subscribe((request) => {
+      if (request && request.photos && this.currentPhotoIndex[requestId] < request.photos.length - 1) {
+        this.currentPhotoIndex[requestId]++
+      }
+    })
+  }
 }
+

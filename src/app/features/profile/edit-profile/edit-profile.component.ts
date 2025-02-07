@@ -7,6 +7,7 @@ import type { User } from "../../../core/models/user"
 import { ActivatedRoute } from "@angular/router"
 import { NotificationService } from "../../../core/services/notification.service"
 import { AuthService } from "../../../core/services/auth.service"
+import { Subscription } from "rxjs"
 
 @Component({
   selector: "app-edit-profile",
@@ -30,12 +31,13 @@ export class EditProfileComponent implements OnInit {
   errorMessage = ""
   profileImage: string | ArrayBuffer | null = null
   today?: string ;
-
+  private routeSubscription: Subscription | null = null
+  private userServiceSubscription: Subscription | null = null
 
   ngOnInit() {
     this.today = new Date().toISOString().split('T')[0];
 
-    this.route.data.subscribe((data) => {
+    this.routeSubscription =  this.route.data.subscribe((data) => {
       this.user = data["user"]
       if (this.user) {
         console.log(this.user.birthDate)
@@ -45,7 +47,14 @@ export class EditProfileComponent implements OnInit {
       }
     })
   }
-
+  ngOnDestroy() {
+    if (this.routeSubscription) {
+      this.routeSubscription.unsubscribe()
+    }
+    if (this.userServiceSubscription) {
+      this.userServiceSubscription.unsubscribe()
+    }
+  }
   initForms() {
     this.profileForm = this.fb.group({
       fullName: [this.user?.fullName, [Validators.required, Validators.minLength(3)]],
@@ -105,7 +114,7 @@ export class EditProfileComponent implements OnInit {
   updateProfile(isProfilePicture = false) {
     if ((this.profileForm.valid || isProfilePicture) && this.user) {
       const updatedUser: User = { ...this.user, ...this.profileForm.value, profilePicture: this.profileImage as string }
-      this.userService.updateUser(updatedUser).subscribe(
+      this.userServiceSubscription = this.userService.updateUser(updatedUser).subscribe(
         (success) => {
           if (success) {
             this.notificationService.showMessage("Profile updated successfully!", "success")
@@ -124,7 +133,7 @@ export class EditProfileComponent implements OnInit {
 
   changePassword() {
     if (this.passwordForm.valid && this.user) {
-      this.userService
+      this.userServiceSubscription =  this.userService
         .changePassword(this.user.email, this.passwordForm.value.oldPassword, this.passwordForm.value.newPassword)
         .subscribe(
           (success) => {
@@ -142,7 +151,7 @@ export class EditProfileComponent implements OnInit {
 
   convertPoints(points: number) {
     if (this.user) {
-      this.userService.convertPointsToVoucher(this.user.id, points).subscribe(
+      this.userServiceSubscription =  this.userService.convertPointsToVoucher(this.user.id, points).subscribe(
         (voucher) => {
           if (voucher !== null) {
             this.notificationService.showMessage(`Converted ${points} points to a ${voucher} Dh voucher!`, "success")
@@ -160,7 +169,7 @@ export class EditProfileComponent implements OnInit {
 
   deleteAccount() {
     if (confirm("Are you sure you want to delete your account? This action cannot be undone.") && this.user) {
-      this.userService.deleteAccount(this.user.email).subscribe(
+      this.userServiceSubscription = this.userService.deleteAccount(this.user.email).subscribe(
         (success) => {
           if (success) {
             this.router.navigate(["/login"])

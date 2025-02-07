@@ -1,51 +1,120 @@
-<div class="container mx-auto p-6">
-    <h1 class="text-3xl font-bold text-center mb-6 text-green-700">
-      Waste Collection Requests
-    </h1>
-  
-    <app-search (searchEvent)="onSearch($event)"></app-search>
-  
-    <div class="flex justify-end mb-4" *ngIf="userRole === 'particulier'">
-      <button
-        class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300"
-        routerLink="/requests/add-collect-request"
-      >
-        + Add Collect Request
-      </button>
-    </div>
-  
-    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+<div class="container mx-auto p-6 bg-gray-100 min-h-screen">
+  <h1 class="text-4xl font-bold text-center mb-8 text-green-700">
+    Waste Collection Requests
+  </h1>
+
+  <app-search (searchEvent)="onSearch($event)" class="mb-6"></app-search>
+
+  <div class="flex justify-end mb-6" *ngIf="userRole$ as userRole">
+    <button
+      *ngIf="userRole === 'particulier'"
+      class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300 shadow-lg"
+      routerLink="/requests/add-collect-request"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-2" viewBox="0 0 20 20" fill="currentColor">
+        <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
+      </svg>
+      Add Collect Request
+    </button>
+  </div>
+
+  <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+    <ng-container *ngIf="filteredRequests$ | async as requests">
       <div
-        *ngFor="let request of filteredRequests"
-        class="bg-white shadow-lg rounded-lg overflow-hidden transform hover:scale-105 transition duration-300"
+        *ngFor="let request of requests"
+        class="bg-white shadow-xl rounded-lg overflow-hidden transform hover:scale-105 transition duration-300"
       >
-        <img
-          *ngIf="request.photos?.length"
-          [src]="request.photos && request.photos.length ? request.photos[0] : 'https://i.pinimg.com/736x/2e/ba/ab/2ebaab8f47a591f90cd15fd296732e44.jpg'"
-          alt="Waste Image"
-          class="w-full h-40 object-cover"
-        />
-        <div class="p-4">
-          <h2 class="text-xl font-semibold text-green-700">{{ request.wasteType.join(', ') }}</h2>
-          <p class="text-gray-500"><strong>Estimated Weight:</strong> {{ request.estimatedWeight }} kg</p>
-          <p class="text-gray-500"><strong>Address:</strong> {{ request.address }}</p>
-          <p class="text-gray-500">
-            <strong>Date & Time:</strong> {{ request.preferredDate | date:'shortDate' }} - {{ request.preferredTime }}
-          </p>
-          <p class="mt-2">
-            <span
-              class="px-3 py-1 rounded-full text-white text-sm"
-              [ngClass]="{
-                'bg-yellow-500': request.status === 'pending',
-                'bg-green-500': request.status === 'accepted',
-                'bg-red-500': request.status === 'rejected'
-              }"
-            >
-              {{ request.status | uppercase }}
-            </span>
-          </p>
+        <div class="relative h-48">
+          <ng-container *ngIf="!request.photos?.length; else photoCarousel">
+            <img
+              src="https://i.pinimg.com/736x/ac/ab/ec/acabec36182187e548564d32e12489a1.jpg"
+              alt="Default Waste Image"
+              class="w-full h-full object-cover"
+            />
+          </ng-container>
+          <ng-template #photoCarousel>
+            <div class="relative h-full">
+              <img
+                *ngFor="let photo of request.photos; let i = index"
+                [src]="photo"
+                [class.hidden]="currentPhotoIndex[request.id] !== i"
+                alt="Waste Image"
+                class="w-full h-full object-cover"
+              />
+              <div *ngIf="(request.photos?.length ?? 0)  > 1" class="absolute inset-0 flex items-center justify-between">
+                <button
+                  class="bg-black bg-opacity-50 text-white rounded-full p-2 ml-2 focus:outline-none"
+                  (click)="prevPhoto(request.id)"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
+                <button
+                  class="bg-black bg-opacity-50 text-white rounded-full p-2 mr-2 focus:outline-none"
+                  (click)="nextPhoto(request.id)"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </ng-template>
+        </div>
+        <div class="p-6">
+          <div class="flex justify-between items-start mb-4">
+            <h2 class="text-2xl font-bold text-green-800">
+              {{ request.wasteType.join(', ') }}
+            </h2>
+            <div *ngIf="userRole$  === 'particulier' && request.status === 'pending'" class="flex space-x-2">
+              <button
+                class="text-green-600 hover:bg-green-100 p-2 rounded-full transition"
+                (click)="onEditRequest(request)"
+                title="Edit Request"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+              </button>
+              <button
+                class="text-red-600 hover:bg-red-100 p-2 rounded-full transition"
+                (click)="onDeleteRequest(request.id)"
+                title="Delete Request"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="space-y-3">
+            <p class="text-gray-600"><strong class="text-gray-800">Request ID:</strong> {{ request.id }}</p>
+            <p class="text-gray-600"><strong class="text-gray-800">Email:</strong> {{ request.userEmail }}</p>
+            <p class="text-gray-600"><strong class="text-gray-800">Estimated Weight:</strong> {{ request.estimatedWeight }} kg</p>
+            <p class="text-gray-600"><strong class="text-gray-800">Address:</strong> {{ request.address }}</p>
+            <p class="text-gray-600">
+              <strong class="text-gray-800">Date & Time:</strong> {{ request.preferredDate | date:'fullDate' }} at {{ request.preferredTime }}
+            </p>
+            <p class="text-gray-600" *ngIf="request.notes">
+              <strong class="text-gray-800">Notes:</strong> {{ request.notes }}
+            </p>
+            <p class="mt-4">
+              <span
+                class="px-4 py-2 rounded-full text-white text-sm font-semibold"
+                [ngClass]="{
+                  'bg-yellow-500': request.status === 'pending',
+                  'bg-green-500': request.status === 'accepted',
+                  'bg-red-500': request.status === 'rejected'
+                }"
+              >
+                {{ request.status | uppercase }}
+              </span>
+            </p>
+          </div>
         </div>
       </div>
-    </div>
+    </ng-container>
   </div>
-  
+</div>

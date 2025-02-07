@@ -1,15 +1,34 @@
-import { inject, Injectable } from '@angular/core';
-import { CollectRequest } from '../models/collect-request';
-import { Observable, of } from 'rxjs';
-import { NotificationService } from './notification.service';
+import { Inject, Injectable } from "@angular/core"
+import {  Observable, of, throwError, Subject, mergeMap } from "rxjs"
+import  { CollectRequest } from "../models/collect-request"
+import { NotificationService } from "./notification.service"
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: "root",
 })
 export class CollectRequestService {
-  private static REQUESTS_KEY = 'collectRequests';
-  private notificationsService = inject(NotificationService);
-  constructor() { }
+  private static REQUESTS_KEY = "collectRequests";
+
+  constructor(private notificationService: NotificationService) {}
+
+  private validateRequestConstraints(request: CollectRequest, requests: CollectRequest[]): Observable<boolean> {
+    const userRequests = requests.filter(
+      (req) => req.userEmail === request.userEmail && req.status === "pending"
+    );
+
+    if (userRequests.length >= 3) {
+      this.notificationService.showMessage("You cannot have more than 3 pending requests simultaneously.", "error");
+      return of(false);
+    }
+
+    const totalWeight = userRequests.reduce((sum, req) => sum + req.estimatedWeight, 0) + request.estimatedWeight;
+    if (totalWeight > 10000) {
+      this.notificationService.showMessage("Total weight of you pending requests cannot exceed 10kg.", "error");
+      return of(false);
+    }
+
+    return of(true);
+  }
 
   getRequestsByUserEmail(userEmail: string): Observable<CollectRequest[]> {
     const storedRequests = localStorage.getItem(CollectRequestService.REQUESTS_KEY);
@@ -19,60 +38,92 @@ export class CollectRequestService {
 
     try {
       const requests: CollectRequest[] = JSON.parse(storedRequests);
-      const filteredRequests = requests.filter(request => request.userEmail === userEmail);
-      return of(filteredRequests);
+      return of(requests.filter((request) => request.userEmail === userEmail));
     } catch (error) {
-      this.notificationsService.showMessage('Erreur lors de la récupération des demandes de collecte', 'error');
+      this.notificationService.showMessage("Error retrieving collect requests. Please try again.", "error");
       return of([]);
     }
   }
 
-  addRequest(request: CollectRequest): Observable<void> {
+  addRequest(request: CollectRequest): Observable<CollectRequest> {
     const storedRequests = localStorage.getItem(CollectRequestService.REQUESTS_KEY);
-    let requests: CollectRequest[] = storedRequests ? JSON.parse(storedRequests) : [];
+    const requests: CollectRequest[] = storedRequests ? JSON.parse(storedRequests) : [];
 
-    const totalWeight = requests.reduce((sum, req) => sum + req.estimatedWeight, 0) + request.estimatedWeight;
-    if (totalWeight > 10000) {
-      this.notificationsService.showMessage('Le poids total des collectes ne doit pas dépasser 10kg.', 'error');
+    return this.validateRequestConstraints(request, requests).pipe(
+      mergeMap((isValid) => {
+        if (!isValid) {
+          return of();
+        }
+
+        requests.push(request);
+        localStorage.setItem(CollectRequestService.REQUESTS_KEY, JSON.stringify(requests));
+        this.notificationService.showMessage("Request successfully added!", "success");
+        return of(request);
+      })
+    );
+  }
+
+  updateRequest(updatedRequest: CollectRequest): Observable<CollectRequest> {
+    const storedRequests = localStorage.getItem(CollectRequestService.REQUESTS_KEY);
+    const requests: CollectRequest[] = storedRequests ? JSON.parse(storedRequests) : [];
+
+    const index = requests.findIndex((req) => req.id === updatedRequest.id);
+    if (index === -1) {
+      this.notificationService.showMessage("Request not found.", "error");
+      return of();
     }
 
-    const pendingRequests = requests.filter(req => req.status === 'pending' && req.userEmail === request.userEmail);
-    if (pendingRequests.length >= 3) {
-      this.notificationsService.showMessage('Vous ne pouvez pas avoir plus de 3 demandes non validées.', 'error');
+    if (requests[index].status !== "pending") {
+      this.notificationService.showMessage("Only pending requests can be modified.", "error");
+      return of();
     }
 
-    requests.push(request);
-    localStorage.setItem(CollectRequestService.REQUESTS_KEY, JSON.stringify(requests));
-    return of();
+    return this.validateRequestConstraints(updatedRequest, requests).pipe(
+      mergeMap((isValid) => {
+        if (!isValid) {
+          return of();
+        }
+
+        requests[index] = updatedRequest;
+        localStorage.setItem(CollectRequestService.REQUESTS_KEY, JSON.stringify(requests));
+        this.notificationService.showMessage("Request successfully updated!", "success");
+        return of(updatedRequest);
+      })
+    );
   }
 
-  updateRequest(updatedRequest: CollectRequest): Observable<void> {
+  deleteRequest(id: string): Observable<string> {
     const storedRequests = localStorage.getItem(CollectRequestService.REQUESTS_KEY);
     let requests: CollectRequest[] = storedRequests ? JSON.parse(storedRequests) : [];
-    requests = requests.map(req => req.id === updatedRequest.id ? updatedRequest : req);
+
+    const index = requests.findIndex((req) => req.id === id);
+    if (index === -1) {
+      this.notificationService.showMessage("Request not found.", "error");
+      return of();
+    }
+
+    if (requests[index].status !== "pending") {
+      this.notificationService.showMessage("Only pending requests can be deleted.", "error");
+      return of();
+    }
+
+    requests = requests.filter((req) => req.id !== id);
     localStorage.setItem(CollectRequestService.REQUESTS_KEY, JSON.stringify(requests));
-    return of();
-  }
-
-  deleteRequest(id: string): Observable<void> {
-    const storedRequests = localStorage.getItem(CollectRequestService.REQUESTS_KEY);
-    let requests: CollectRequest[] = storedRequests ? JSON.parse(storedRequests) : [];
-    requests = requests.filter(req => req.id !== id);
-    localStorage.setItem(CollectRequestService.REQUESTS_KEY, JSON.stringify(requests));
-    return of();
-  }
-
-  private getRequests(): CollectRequest[] {
-    return JSON.parse(localStorage.getItem(CollectRequestService.REQUESTS_KEY) || '[]');
-  }
-
-
-  getRequestById(id: string): CollectRequest | undefined {
-    return this.getRequests().find(request => request.id === id);
+    this.notificationService.showMessage("Request successfully deleted!", "success");
+    return of(id);
   }
 
   getAllRequests(): Observable<CollectRequest[]> {
     const storedRequests = localStorage.getItem(CollectRequestService.REQUESTS_KEY);
     return of(storedRequests ? JSON.parse(storedRequests) : []);
+  }
+
+  getRequestById(id: string): CollectRequest | undefined {
+    const storedRequests = localStorage.getItem(CollectRequestService.REQUESTS_KEY);
+    if (!storedRequests) {
+      return undefined;
+    }
+    const requests: CollectRequest[] = JSON.parse(storedRequests);
+    return requests.find((request) => request.id === id);
   }
 }

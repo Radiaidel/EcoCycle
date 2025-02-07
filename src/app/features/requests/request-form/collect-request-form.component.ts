@@ -1,75 +1,109 @@
-import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Subscription } from 'rxjs';
-import { CollectRequestService } from '../../../core/services/collect-request.service';
-import { AuthService } from '../../../core/services/auth.service';
-import { CommonModule } from '@angular/common';
-import { NotificationService } from '../../../core/services/notification.service';
-import { Router } from '@angular/router';
+import { Component,  OnInit,  OnDestroy, inject } from "@angular/core"
+import {  FormBuilder, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms"
+import  { Subscription } from "rxjs"
+import  { CollectRequestService } from "../../../core/services/collect-request.service"
+import  { AuthService } from "../../../core/services/auth.service"
+import { CommonModule } from "@angular/common"
+import  { Router, ActivatedRoute } from "@angular/router"
+import  { CollectRequest } from "../../../core/models/collect-request"
+import { Store } from "@ngrx/store"
+import { CollectRequestState } from "../../../core/state/collect-request/collect-request.reducer"
+import { addCollectRequest, loadCollectRequests, updateCollectRequest } from "../../../core/state/collect-request/collect-request.actions"
+import { selectCollectRequestById } from "../../../core/state/collect-request/collect-request.selectors"
 
 @Component({
-  selector: 'app-collect-request',
+  selector: "app-collect-request",
   imports: [CommonModule, ReactiveFormsModule],
-  templateUrl: './collect-request-form.component.html',
+  templateUrl: "./collect-request-form.component.html",
   standalone: true,
 })
-export class CollectRequestComponent implements OnInit {
-  // requests$: Observable<CollectRequest[]>;
-  currentUserEmail: string;
-  collectRequestForm: FormGroup;
-  photos: string[] = [];
-  private subscriptions: Subscription[] = [];
+export class CollectRequestComponent implements OnInit, OnDestroy {
+  currentUserEmail: string
+  collectRequestForm: FormGroup
+  photos: string[] = []
+  private subscriptions: Subscription[] = []
+  collectRequest: CollectRequest | null = null
+  isEditMode = false
+
+
+  private store = inject(Store<CollectRequestState>);
+  private fb = inject(FormBuilder);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
+private authService = inject(AuthService);
 
   constructor(
-    private fb: FormBuilder,
-    private collectRequestService: CollectRequestService,
-    private authService: AuthService,
-    private router: Router,
-    private notificationsService: NotificationService
   ) {
-    this.currentUserEmail = this.authService.getCurrentUser()?.email || '';
+    this.currentUserEmail = this.authService.getCurrentUser()?.email || ""
     this.collectRequestForm = this.fb.group({
       wasteType: [[], [Validators.required]],
       estimatedWeight: [null, [Validators.required, Validators.min(1000)]],
-      address: ['', [Validators.required]],
-      preferredDate: ['', [Validators.required, this.dateValidator]],
-      preferredTime: ['', [Validators.required, Validators.pattern(/^(09|1[0-8]):[0-5][0-9]$/), this.timeValidator]],
-      notes: ['']
+      address: ["", [Validators.required]],
+      preferredDate: ["", [Validators.required, this.dateValidator]],
+      preferredTime: ["", [Validators.required, Validators.pattern(/^(09|1[0-8]):[0-5][0-9]$/)]],
+      notes: [""],
+    })
+  }
+
+  ngOnInit(): void {
+    this.store.dispatch(loadCollectRequests());
+    this.route.paramMap.subscribe((params) => {
+      const requestId = params.get("id");
+      if (requestId) {
+        this.isEditMode = true;
+        this.store.select(selectCollectRequestById(requestId)).subscribe((request) => {
+          if (request) {
+            this.collectRequest = request;
+            this.collectRequestForm.patchValue({
+              wasteType: request.wasteType,
+              estimatedWeight: request.estimatedWeight,
+              address: request.address,
+              preferredDate: request.preferredDate,
+              preferredTime: request.preferredTime,
+              notes: request.notes,
+            });
+            this.photos = request.photos || [];
+          }
+        });
+      }
     });
   }
 
-  ngOnInit(): void { }
   ngOnDestroy(): void {
-    this.subscriptions.forEach(sub => sub.unsubscribe());
+    this.subscriptions.forEach((sub) => sub.unsubscribe());
   }
-
-
-
-
-
 
   onSubmit(): void {
     if (this.collectRequestForm.valid) {
-      const newRequest = {
-        id: this.generateId(),
+      const requestData: CollectRequest = {
+        id: this.collectRequest?.id || this.generateId(),
         userEmail: this.currentUserEmail,
         ...this.collectRequestForm.value,
-        status: 'pending',
+        status: "pending",
+        photos: this.photos,
       };
 
-      const requestSubscription = this.collectRequestService.addRequest(newRequest).subscribe({
-        next: () => {
-          this.notificationsService.showMessage('Request submitted successfully', 'success');
-          this.router.navigate(['/requests']);
-        },
-        error: (error) => {
-          this.notificationsService.showMessage(error.message, 'error');
-        },
-      });
+      if (this.isEditMode) {
+        this.store.dispatch(updateCollectRequest({ request: requestData }));
+      } else {
+        this.store.dispatch(addCollectRequest({ request: requestData }));
+      }
 
-      this.subscriptions.push(requestSubscription);
+      this.router.navigate(["/requests"]);
+    } else {
+      this.markFormGroupTouched(this.collectRequestForm);
     }
   }
+
+  markFormGroupTouched(formGroup: FormGroup) {
+    Object.values(formGroup.controls).forEach((control) => {
+      control.markAsTouched();
+      if (control instanceof FormGroup) {
+        this.markFormGroupTouched(control);
+      }
+    });
+  }
+
   onFileSelected(event: Event) {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
@@ -85,9 +119,8 @@ export class CollectRequestComponent implements OnInit {
     }
   }
 
-
   removePhoto(photo: string) {
-    this.photos = this.photos.filter(p => p !== photo);
+    this.photos = this.photos.filter((p) => p !== photo);
   }
 
   generateId(): string {
@@ -99,11 +132,4 @@ export class CollectRequestComponent implements OnInit {
     const inputDate = new Date(control.value);
     return inputDate > today ? null : { dateInvalid: true };
   }
-
-  timeValidator(control: any): { [key: string]: boolean } | null {
-    const time = control.value.split(':');
-    const hour = parseInt(time[0], 10);
-    return hour < 18 ? null : { timeInvalid: true };
-  }
-
 }

@@ -12,11 +12,12 @@ import { RequestListComponent } from './features/requests/request-list/request-l
 export const routes: Routes = [
     { path: 'home', component: HomeComponent },
     { path: 'profile', component: EditProfileComponent, canActivate: [authGuard], resolve: { user: ProfileResolver } },
-    { path: 'requests', component: RequestListComponent, canActivate: [authGuard] },
-    { path: 'requests/add-collect-request', component: CollectRequestComponent, canActivate: [authGuard] },
-    { path: 'login', component: LoginComponent, canActivate: [noAuthGuard] },
-    { path: 'register', component: RegisterComponent, canActivate: [noAuthGuard] },
+    { path: 'requests', component: RequestListComponent},
+    { path: 'requests/add-collect-request', component: CollectRequestComponent},
+    { path: 'requests/edit-collect-request/:id', component: CollectRequestComponent },
 
+    { path: 'login', component: LoginComponent },
+    { path: 'register', component: RegisterComponent},
     { path: '', redirectTo: '/home', pathMatch: 'full' }
 
 ];
