@@ -1,1 +1,51 @@
-<p>request-list works!</p>
+<div class="container mx-auto p-6">
+    <h1 class="text-3xl font-bold text-center mb-6 text-green-700">
+      Waste Collection Requests
+    </h1>
+  
+    <app-search (searchEvent)="onSearch($event)"></app-search>
+  
+    <div class="flex justify-end mb-4" *ngIf="userRole === 'particulier'">
+      <button
+        class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300"
+        routerLink="/requests/add-collect-request"
+      >
+        + Add Collect Request
+      </button>
+    </div>
+  
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div
+        *ngFor="let request of filteredRequests"
+        class="bg-white shadow-lg rounded-lg overflow-hidden transform hover:scale-105 transition duration-300"
+      >
+        <img
+          *ngIf="request.photos?.length"
+          [src]="request.photos && request.photos.length ? request.photos[0] : 'https://i.pinimg.com/736x/2e/ba/ab/2ebaab8f47a591f90cd15fd296732e44.jpg'"
+          alt="Waste Image"
+          class="w-full h-40 object-cover"
+        />
+        <div class="p-4">
+          <h2 class="text-xl font-semibold text-green-700">{{ request.wasteType.join(', ') }}</h2>
+          <p class="text-gray-500"><strong>Estimated Weight:</strong> {{ request.estimatedWeight }} kg</p>
+          <p class="text-gray-500"><strong>Address:</strong> {{ request.address }}</p>
+          <p class="text-gray-500">
+            <strong>Date & Time:</strong> {{ request.preferredDate | date:'shortDate' }} - {{ request.preferredTime }}
+          </p>
+          <p class="mt-2">
+            <span
+              class="px-3 py-1 rounded-full text-white text-sm"
+              [ngClass]="{
+                'bg-yellow-500': request.status === 'pending',
+                'bg-green-500': request.status === 'accepted',
+                'bg-red-500': request.status === 'rejected'
+              }"
+            >
+              {{ request.status | uppercase }}
+            </span>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+  
