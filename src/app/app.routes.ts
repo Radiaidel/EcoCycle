@@ -8,6 +8,7 @@ import { ProfileResolver } from './core/resolvers/profile.resolver';
 import { noAuthGuard } from './core/guards/no-auth.guard';
 import { CollectRequestComponent } from './features/requests/request-form/collect-request-form.component';
 import { RequestListComponent } from './features/requests/request-list/request-list.component';
+import { CollectProcessComponent } from './features/requests/collect-process/collect-process.component';
 
 export const routes: Routes = [
     { path: 'home', component: HomeComponent },
@@ -15,7 +16,9 @@ export const routes: Routes = [
     { path: 'requests', component: RequestListComponent},
     { path: 'requests/add-collect-request', component: CollectRequestComponent},
     { path: 'requests/edit-collect-request/:id', component: CollectRequestComponent },
+    { path: 'collect-process/:id', component: CollectProcessComponent},
 
+    
     { path: 'login', component: LoginComponent },
     { path: 'register', component: RegisterComponent},
     { path: '', redirectTo: '/home', pathMatch: 'full' }

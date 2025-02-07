@@ -1,0 +1,169 @@
+<div class="min-h-screen bg-gradient-to-b from-green-50 to-white">
+    <div class="container mx-auto p-6">
+      <!-- Header -->
+      <div class="text-center mb-8">
+        <h1 class="text-3xl font-bold text-green-800">Processus de Collecte EcoCycle</h1>
+        <p class="text-green-600">Ensemble pour un avenir plus durable</p>
+      </div>
+<i class="fas fa-wine-bottle"></i> test
+      <!-- Progress Bar -->
+      <div class="mb-8">
+        <div class="w-full bg-gray-200 rounded-full h-3">
+          <div class="bg-green-500 h-3 rounded-full transition-all duration-500" 
+               [style.width]="(currentStep / 4 * 100) + '%'">
+          </div>
+        </div>
+        <div class="flex justify-between mt-3">
+          <div *ngFor="let step of steps" 
+               [class]="'flex flex-col items-center ' + 
+                       (step.number <= currentStep ? 'text-green-600' : 'text-gray-400')">
+            <div class="w-8 h-8 rounded-full flex items-center justify-center"
+                 [class]="step.number <= currentStep ? 'bg-green-100 text-green-600' : 'bg-gray-100'">
+              <i [class]="step.icon"></i>
+            </div>
+            <span class="text-sm mt-2">{{step.label}}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step Forms -->
+      <form [formGroup]="collectForm" (ngSubmit)="onSubmit()" class="space-y-6 bg-white rounded-lg shadow-lg p-6">
+        <!-- Step 1: Sélection des matériaux -->
+        <div *ngIf="currentStep === 1">
+          <h2 class="text-xl font-bold mb-4 text-green-800">Sélection des matériaux</h2>
+          <div formArrayName="materials" class="grid md:grid-cols-2 gap-4">
+            <div *ngFor="let material of availableMaterials" 
+                 class="p-4 border rounded-lg hover:border-green-500 cursor-pointer"
+                 [class.border-green-500]="isMaterialSelected(material.id)"
+                 (click)="toggleMaterial(material)">
+              <div class="flex items-center space-x-3">
+                <i [class]="material.icon + ' text-2xl text-green-600'"></i>
+                <span class="font-medium">{{material.name}}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 2: Poids par matériau -->
+        <div *ngIf="currentStep === 2">
+          <h2 class="text-xl font-bold mb-4 text-green-800">Poids des matériaux</h2>
+          <div formArrayName="materials" class="space-y-4">
+            <div *ngFor="let material of selectedMaterials; let i = index" 
+                 [formGroupName]="i"
+                 class="p-4 bg-green-50 rounded-lg">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                  <i [class]="material.icon + ' text-2xl text-green-600'"></i>
+                  <span class="font-medium">{{material.name}}</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                  <input type="text" 
+                         formControlName="weight"
+                         class="w-32 p-2 border rounded focus:ring-2 focus:ring-green-500"
+                         placeholder="Poids en kg">
+                  <span class="text-gray-600">kg</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 3: Photos -->
+        <div *ngIf="currentStep === 3">
+          <h2 class="text-xl font-bold mb-4 text-green-800">Photos (Optionnel)</h2>
+          <div class="space-y-4">
+            <div class="border-2 border-dashed border-green-300 rounded-lg p-6 text-center">
+              <input type="file" 
+                     multiple
+                     #fileInput
+                     (change)="onFileSelected($event)"
+                     accept="image/*"
+                     class="hidden">
+              <button type="button"
+                      (click)="fileInput.click()"
+                      class="px-4 py-2 bg-green-100 text-green-600 rounded-lg hover:bg-green-200">
+                <i class="fas fa-camera mr-2"></i>
+                Ajouter des photos
+              </button>
+              <p class="text-sm text-gray-500 mt-2">Glissez-déposez vos photos ou cliquez pour les sélectionner</p>
+            </div>
+            
+            <!-- Preview des photos -->
+            <div *ngIf="selectedFiles.length > 0" 
+                 class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+              <div *ngFor="let file of selectedFiles; let i = index" 
+                   class="relative">
+                <img [src]="getFilePreview(file)" 
+                     class="w-full h-32 object-cover rounded-lg">
+                <button type="button"
+                        (click)="removeFile(i)"
+                        class="absolute top-2 right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center">
+                  ×
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 4: Validation -->
+        <div *ngIf="currentStep === 4">
+          <h2 class="text-xl font-bold mb-4 text-green-800">Récapitulatif</h2>
+          <div class="space-y-4 bg-green-50 p-6 rounded-lg">
+            <div class="space-y-2">
+              <h3 class="font-bold text-green-700">Matériaux sélectionnés :</h3>
+              <div *ngFor="let material of selectedMaterials" 
+                   class="flex justify-between items-center p-2 bg-white rounded">
+                <div class="flex items-center space-x-2">
+                  <i [class]="material.icon + ' text-green-600'"></i>
+                  <span>{{material.name}}</span>
+                </div>
+                <span>{{getMaterialWeight(material.id || '')}} kg</span>
+              </div>
+            </div>
+            
+            <div *ngIf="selectedFiles.length > 0">
+              <h3 class="font-bold text-green-700 mt-4">Photos ajoutées :</h3>
+              <p>{{selectedFiles.length}} photo(s)</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Navigation Buttons -->
+        <div class="flex justify-between mt-8">
+          <button type="button" 
+                  *ngIf="currentStep > 1"
+                  (click)="previousStep()"
+                  class="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors">
+            <i class="fas fa-arrow-left mr-2"></i>
+            Précédent
+          </button>
+          
+          <div class="flex gap-4">
+            <button type="button"
+                    (click)="cancelProcess()"
+                    class="px-6 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors">
+              <i class="fas fa-times mr-2"></i>
+              Annuler
+            </button>
+            
+            <button type="button"
+                    *ngIf="currentStep < 4"
+                    (click)="nextStep()"
+                    [disabled]="!canProceedToNextStep()"
+                    class="px-6 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors disabled:opacity-50">
+              <i class="fas fa-arrow-right mr-2"></i>
+              Suivant
+            </button>
+            
+            <button type="submit"
+                    *ngIf="currentStep === 4"
+                    class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+              <i class="fas fa-check mr-2"></i>
+              Valider la collecte
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+`

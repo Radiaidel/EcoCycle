@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { HeaderComponent } from './shared/header/header.component';
 import { NotificationComponent } from './shared/notification/notification.component';
-import { InitialisationService } from './core/services/initialisation.service';
+import { initialisationService } from './core/services/initialisation.service';
 
 @Component({
   selector: 'app-root',
@@ -13,7 +13,7 @@ import { InitialisationService } from './core/services/initialisation.service';
 })
 export class AppComponent {
   title = 'EcoCycle';
-  constructor(private initialisationService: InitialisationService) {}
+  constructor(private initialisationService: initialisationService) {}
 
   ngOnInit(): void {
     this.initialisationService.initUsers();

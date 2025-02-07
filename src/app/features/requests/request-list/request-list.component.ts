@@ -79,7 +79,13 @@ export class RequestListComponent implements OnInit {
 
 
   onStatusChange(requestId: string, event: Event) {
-    this.store.dispatch(CollectRequestActions.updateRequestStatus({ requestId, status:(event.target as HTMLSelectElement).value }));
+    const newStatus= (event.target as HTMLSelectElement).value
+
+    this.store.dispatch(CollectRequestActions.updateRequestStatus({ requestId, status: newStatus}))
+ 
+    if (newStatus === 'in_progress') {
+      this.router.navigate(['/collect-process', requestId]); 
+    }
   }
   
 }
