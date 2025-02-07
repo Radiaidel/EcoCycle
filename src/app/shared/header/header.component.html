@@ -1,123 +1,117 @@
 <header class="fixed top-0 w-full bg-dark-green text-white shadow-md z-50">
-    <nav class="container mx-auto px-4">
-      <div class="flex items-center justify-between h-16">
-        <!-- Logo -->
-        <div class="flex-shrink-0">
-          <a href="/" class="flex items-center">
-            <img src="assets/logo.png" alt="EcoCycle" class="h-8 w-auto">
-          </a>
-        </div>
+  <nav class="container mx-auto px-4">
+    <div class="flex items-center justify-between h-16">
+      <!-- Logo -->
+      <div class="flex-shrink-0">
+        <a href="/" class="flex items-center">
+          <img src="assets/logo.png" alt="EcoCycle" class="h-8 w-auto">
+        </a>
+      </div>
 
-        <!-- Navigation pour desktop -->
-        <div class="hidden md:flex items-center space-x-4">
-          <ng-container *ngIf="!isLoggedIn">
-            <button routerLink="/login"
-                    class="px-4 py-2 hover:border hover:border-green-700  rounded-md ">
-              Sign in
-            </button>
-            <button routerLink="/register"
-                    class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">
-              Sign Up
-            </button>
-          </ng-container>
-
-          <ng-container *ngIf="isLoggedIn">
-            <a routerLink="/home" 
-               class="px-3 py-2 hover:text-gray-200">
-              Accueil
-            </a>
-            <a routerLink="/requests" 
-               class="px-3 py-2 hover:text-gray-200">
-              Requests
-            </a>
-            
-            <!-- Dropdown Profile -->
-            <div class="relative">
-              <button (click)="toggleDropdown()" 
-                      class="flex items-center focus:outline-none">
-                <img [src]="userProfileImage" 
-                     alt="Profile" 
-                     class="h-8 w-8 rounded-full object-cover">
-              </button>
-
-              <div *ngIf="isDropdownOpen" 
-                   class="absolute right-0 mt-2 w-48 bg-dark-green border border-white rounded-md shadow-lg py-1">
-                <a routerLink="/profile" 
-                   class="block px-4 py-2 text-white hover:text-gray-200">
-                  Profile
-                </a>
-                <a routerLink="/my-requests" 
-                   class="block px-4 py-2 text-white hover:text-gray-200">
-                  Mes Requests
-                </a>
-                <button (click)="logout()" 
-                        class="block w-full text-left px-4 py-2 text-white hover:text-red-400 ">
-                  LogOut
-                </button>
-              </div>
-            </div>
-          </ng-container>
-        </div>
-
-        <!-- Menu burger pour mobile -->
-        <div class="md:hidden">
-          <button (click)="toggleMobileMenu()" 
-                  class="p-2 rounded-md hover:text-green-600 focus:outline-none">
-            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path *ngIf="!isMobileMenuOpen" 
-                    stroke-linecap="round" 
-                    stroke-linejoin="round" 
-                    stroke-width="2" 
-                    d="M4 6h16M4 12h16M4 18h16" />
-              <path *ngIf="isMobileMenuOpen" 
-                    stroke-linecap="round" 
-                    stroke-linejoin="round" 
-                    stroke-width="2" 
-                    d="M6 18L18 6M6 6l12 12" />
-            </svg>
+      <!-- Navigation pour desktop -->
+      <div class="hidden md:flex items-center space-x-4">
+        <ng-container *ngIf="!isLoggedIn">
+          <button routerLink="/login"
+            class="px-4 py-2 hover:border hover:border-green-700  rounded-md ">
+            Sign in
           </button>
-        </div>
-      </div>
+          <button routerLink="/register"
+            class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">
+            Sign Up
+          </button>
+        </ng-container>
 
-      <!-- Menu mobile -->
-      <div *ngIf="isMobileMenuOpen" class="md:hidden">
-        <div class="px-2 pt-2 pb-3 space-y-1">
-          <ng-container *ngIf="!isLoggedIn">
-            <a routerLink="/login" 
-               class="block px-3 py-2 hover:text-green-600">
-              Sign in
-            </a>
-            <a routerLink="/register"
-               class="block px-3 py-2 hover:text-green-600">
-              Sign Up
-            </a>
-          </ng-container>
+        <ng-container *ngIf="isLoggedIn">
+          <a routerLink="/home"
+            class="px-3 py-2 hover:text-gray-200">
+            Accueil
+          </a>
+          <a routerLink="/requests"
+            class="px-3 py-2 hover:text-gray-200">
+            Requests
+          </a>
 
-          <ng-container *ngIf="isLoggedIn">
-            <a routerLink="/home" 
-               class="block px-3 py-2 hover:text-green-600">
-              Accueil
-            </a>
-            <a routerLink="/requests" 
-               class="block px-3 py-2 hover:text-green-600">
-              Requests
-            </a>
-            <a routerLink="/profile" 
-               class="block px-3 py-2 hover:text-green-600">
-              Profile
-            </a>
-            <a routerLink="/my-requests" 
-               class="block px-3 py-2 hover:text-green-600">
-              My requests
-            </a>
-            <button (click)="logout()" 
-                    class="block w-full text-left px-3 py-2 hover:text-green-600">
-              LogOut
+          <!-- Dropdown Profile -->
+          <div class="relative">
+            <button (click)="toggleDropdown()"
+              class="flex items-center focus:outline-none">
+              <img [src]="userProfileImage"
+                alt="Profile"
+                class="h-8 w-8 rounded-full object-cover">
             </button>
-          </ng-container>
-        </div>
+
+            <div *ngIf="isDropdownOpen"
+              class="absolute right-0 mt-2 w-48 bg-dark-green border border-white rounded-md shadow-lg py-1">
+              <a routerLink="/profile"
+                class="block px-4 py-2 text-white hover:text-gray-200">
+                Profile
+              </a>
+
+              <button (click)="logout()"
+                class="block w-full text-left px-4 py-2 text-white hover:text-red-400 ">
+                LogOut
+              </button>
+            </div>
+          </div>
+        </ng-container>
       </div>
-    </nav>
-  </header>
-  <!-- Spacer pour compenser le header fixed -->
-  <div class="h-16"></div>
+
+      <!-- Menu burger pour mobile -->
+      <div class="md:hidden">
+        <button (click)="toggleMobileMenu()"
+          class="p-2 rounded-md hover:text-green-600 focus:outline-none">
+          <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor">
+            <path *ngIf="!isMobileMenuOpen"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M4 6h16M4 12h16M4 18h16" />
+            <path *ngIf="isMobileMenuOpen"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Menu mobile -->
+    <div *ngIf="isMobileMenuOpen" class="md:hidden">
+      <div class="px-2 pt-2 pb-3 space-y-1">
+        <ng-container *ngIf="!isLoggedIn">
+          <a routerLink="/login"
+            class="block px-3 py-2 hover:text-green-600">
+            Sign in
+          </a>
+          <a routerLink="/register"
+            class="block px-3 py-2 hover:text-green-600">
+            Sign Up
+          </a>
+        </ng-container>
+
+        <ng-container *ngIf="isLoggedIn">
+          <a routerLink="/home"
+            class="block px-3 py-2 hover:text-green-600">
+            Accueil
+          </a>
+          <a routerLink="/requests"
+            class="block px-3 py-2 hover:text-green-600">
+            Requests
+          </a>
+          <a routerLink="/profile"
+            class="block px-3 py-2 hover:text-green-600">
+            Profile
+          </a>
+
+          <button (click)="logout()"
+            class="block w-full text-left px-3 py-2 hover:text-green-600">
+            LogOut
+          </button>
+        </ng-container>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="h-16"></div>

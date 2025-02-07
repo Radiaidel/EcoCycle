@@ -1,0 +1,130 @@
+<div class="min-h-screen bg-dark-green p-6">
+    <div class="max-w-3xl mx-auto bg-gray-100 rounded-3xl shadow-xl p-8">
+  
+      <form [formGroup]="collectRequestForm" (ngSubmit)="onSubmit()"
+        class="space-y-6">
+        <div class="space-y-4">
+          <label class="block text-sm font-medium text-gray-700">Photos des
+            déchets</label>
+          <div class="flex flex-wrap gap-4">
+            <div *ngFor="let photo of photos" class="relative">
+              <img [src]="photo" class="w-24 h-24 rounded-lg object-cover">
+              <button type="button" (click)="removePhoto(photo)"
+                class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center">
+                ×
+              </button>
+            </div>
+            <div (click)="fileInput.click()"
+              class="w-24 h-24 rounded-lg bg-gray-100 flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors">
+              <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor"
+                viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+              </svg>
+            </div>
+            <input #fileInput type="file" (change)="onFileSelected($event)"
+              multiple accept="image/*" class="hidden">
+          </div>
+        </div>
+  
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Type de
+            déchet</label>
+          <select multiple formControlName="wasteType"
+            class="w-full px-4 py-2 rounded-xl bg-gray-50 border border-gray-200 focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-colors">
+            <option value="plastique">Plastique</option>
+            <option value="verre">Verre</option>
+            <option value="papier">Papier</option>
+            <option value="metal">Métal</option>
+          </select>
+          <div
+            *ngIf="collectRequestForm.get('wasteType')?.touched && collectRequestForm.get('wasteType')?.invalid"
+            class="mt-1 text-sm text-red-600">
+            Veuillez sélectionner au moins un type de déchet
+          </div>
+        </div>
+  
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Poids estimé
+            (g)</label>
+          <input type="number" formControlName="estimatedWeight"
+            class="w-full px-4 py-2 rounded-xl bg-gray-50 border border-gray-200 focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-colors"
+            [ngClass]="{'border-red-500': collectRequestForm.get('estimatedWeight')?.touched && collectRequestForm.get('estimatedWeight')?.invalid}">
+          <div
+            *ngIf="collectRequestForm.get('estimatedWeight')?.touched && collectRequestForm.get('estimatedWeight')?.invalid"
+            class="mt-1 text-sm text-red-600">
+            <span
+              *ngIf="collectRequestForm.get('estimatedWeight')?.errors?.['required']">Le
+              poids est requis</span>
+            <span
+              *ngIf="collectRequestForm.get('estimatedWeight')?.errors?.['min']">Le
+              poids minimum est de 1000g</span>
+          </div>
+        </div>
+  
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Adresse de
+            collecte</label>
+          <input type="text" formControlName="address"
+            class="w-full px-4 py-2 rounded-xl bg-gray-50 border border-gray-200 focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-colors"
+            [ngClass]="{'border-red-500': collectRequestForm.get('address')?.touched && collectRequestForm.get('address')?.invalid}">
+          <div
+            *ngIf="collectRequestForm.get('address')?.touched && collectRequestForm.get('address')?.invalid"
+            class="mt-1 text-sm text-red-600">
+            L'adresse est requise
+          </div>
+        </div>
+  
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Date
+              souhaitée</label>
+            <input type="date" formControlName="preferredDate"
+              class="w-full px-4 py-2 rounded-xl bg-gray-50 border border-gray-200 focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-colors"
+              [ngClass]="{'border-red-500': collectRequestForm.get('preferredDate')?.touched && collectRequestForm.get('preferredDate')?.invalid}">
+            <div
+              *ngIf="collectRequestForm.get('preferredDate')?.touched && collectRequestForm.get('preferredDate')?.invalid"
+              class="mt-1 text-sm text-red-600">
+              La date est requise
+            </div>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Heure
+              souhaitée (9h-18h)</label>
+            <input type="time" formControlName="preferredTime"
+              class="w-full px-4 py-2 rounded-xl bg-gray-50 border border-gray-200 focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-colors"
+              [ngClass]="{'border-red-500': collectRequestForm.get('preferredTime')?.touched && collectRequestForm.get('preferredTime')?.invalid}">
+            <div
+              *ngIf="collectRequestForm.get('preferredTime')?.touched && collectRequestForm.get('preferredTime')?.invalid"
+              class="mt-1 text-sm text-red-600">
+              <span
+                *ngIf="collectRequestForm.get('preferredTime')?.errors?.['required']">L'heure
+                est requise</span>
+              <span
+                *ngIf="collectRequestForm.get('preferredTime')?.errors?.['pattern']">L'heure
+                doit être entre 9h et 18h</span>
+            </div>
+          </div>
+        </div>
+  
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Notes
+            supplémentaires</label>
+          <textarea formControlName="notes" rows="4"
+            class="w-full px-4 py-2 rounded-xl bg-gray-50 border border-gray-200 focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-colors"></textarea>
+        </div>
+  
+        <div class="flex justify-end space-x-4 pt-6">
+          <button type="button"
+            class="px-6 py-2 rounded-xl border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors">
+            Annuler
+          </button>
+          <button type="submit"
+            [disabled]="collectRequestForm.invalid"
+            class="px-6 py-2 rounded-xl bg-green-500 text-white hover:bg-green-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+            Soumettre
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
