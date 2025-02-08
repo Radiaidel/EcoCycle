@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { User } from '../models/user';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -37,15 +37,29 @@ export class AuthService {
     return true;
   }
 
+  private userLoggedInSubject = new BehaviorSubject<boolean>(false);
+  userLoggedIn$: Observable<boolean> = this.userLoggedInSubject.asObservable();
+
   login(email: string, password: string): boolean {
     const user = this.getUsers().find(user => user.email === email && user.password === password);
     if (user) {
       localStorage.setItem(AuthService.CURRENT_USER_KEY, JSON.stringify(user));
       this.authStateSubject.next({ isLoggedIn: true, userProfileImage: user.profilePicture || '' });
+      this.userLoggedInSubject.next(true); 
       return true;
     }
     return false;
   }
+
+  // login(email: string, password: string): boolean {
+  //   const user = this.getUsers().find(user => user.email === email && user.password === password);
+  //   if (user) {
+  //     localStorage.setItem(AuthService.CURRENT_USER_KEY, JSON.stringify(user));
+  //     this.authStateSubject.next({ isLoggedIn: true, userProfileImage: user.profilePicture || '' });
+  //     return true;
+  //   }
+  //   return false;
+  // }
 
   logout(): void {
     localStorage.removeItem(AuthService.CURRENT_USER_KEY);

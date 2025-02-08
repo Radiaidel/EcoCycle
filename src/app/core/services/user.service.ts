@@ -21,22 +21,22 @@ export class UserService {
     return this.currentUserSubject.asObservable();
   }
 
-  updateUser(updatedUser: User): Observable<boolean> {
-    return of(updatedUser).pipe(
-      tap(user => {
-        const users = this.getUsers();
-        const index = users.findIndex(u => u.email === user.email);
-        if (index !== -1) {
-          users[index] = user;
-          this.saveUsers(users);
-          localStorage.setItem(UserService.CURRENT_USER_KEY, JSON.stringify(user));
-          this.currentUserSubject.next(user);
-        }
-      }),
-      map(() => true),
-      catchError(() => of(false))
-    );
-  }
+  // updateUser(updatedUser: User): Observable<boolean> {
+  //   return of(updatedUser).pipe(
+  //     tap(user => {
+  //       const users = this.getUsers();
+  //       const index = users.findIndex(u => u.email === user.email);
+  //       if (index !== -1) {
+  //         users[index] = user;
+  //         this.saveUsers(users);
+  //         localStorage.setItem(UserService.CURRENT_USER_KEY, JSON.stringify(user));
+  //         this.currentUserSubject.next(user);
+  //       }
+  //     }),
+  //     map(() => true),
+  //     catchError(() => of(false))
+  //   );
+  // }
 
   changePassword(email: string, oldPassword: string, newPassword: string): Observable<boolean> {
     return of(this.getUsers()).pipe(
@@ -74,17 +74,67 @@ export class UserService {
     localStorage.setItem(UserService.USERS_KEY, JSON.stringify(users));
   }
 
-  convertPointsToVoucher(userId: number, pointsToConvert: number): Observable<number | null> {
-    const conversionTable: { [key: number]: number } = { 100: 50, 200: 120, 500: 350 };
-    return this.getCurrentUser().pipe(
-      map(user => {
-        if (user && user.points >= pointsToConvert && conversionTable[pointsToConvert]) {
-          user.points -= pointsToConvert;
-          this.updateUser(user);
-          return conversionTable[pointsToConvert];
+  
+  private static POINTS_KEY = 'user_points';
+
+  updateUser(updatedUser: Partial<User>): Observable<boolean> {
+    console.log('Updating user:', updatedUser);
+    return of(updatedUser).pipe(
+      tap(userUpdate => {
+        const users = this.getUsers();
+        const index = users.findIndex(u => u.email === userUpdate.email);
+        
+        if (index !== -1) {
+          // Fusionner les données existantes avec les mises à jour
+          const existingUser = users[index];
+          const updatedUserData = {
+            ...existingUser,
+            ...userUpdate,
+          };
+          
+          users[index] = updatedUserData;
+          this.saveUsers(users);
+
+          // Mettre à jour l'utilisateur courant si c'est le même
+          const currentUser = this.currentUserSubject.value;
+          if (currentUser && currentUser.email === userUpdate.email) {
+            const updatedCurrentUser = {
+              ...currentUser,
+              ...userUpdate,
+            };
+            localStorage.setItem(
+              UserService.CURRENT_USER_KEY,
+              JSON.stringify(updatedCurrentUser)
+            );
+            this.currentUserSubject.next(updatedCurrentUser);
+          }
+
+          // Mettre à jour les points si nécessaire
+          if (userUpdate.points !== undefined && userUpdate.email !== undefined) {
+            this.updateUserPoints(userUpdate.email, userUpdate.points);
+          }
         }
-        return null;
+      }),
+      map(() => true),
+      catchError(error => {
+        console.error('Error updating user:', error);
+        return of(false);
       })
     );
+  }
+
+  private updateUserPoints(email: string, points: number): void {
+    const storedPoints = localStorage.getItem(UserService.POINTS_KEY);
+    let pointsData: { [key: string]: number } = storedPoints ? JSON.parse(storedPoints) : {};
+    pointsData[email] = points;
+    localStorage.setItem(UserService.POINTS_KEY, JSON.stringify(pointsData));
+  }
+
+  getUserPoints(email: string): number {
+    const storedPoints = localStorage.getItem(UserService.POINTS_KEY);
+    if (!storedPoints) return 0;
+    
+    const pointsData = JSON.parse(storedPoints);
+    return pointsData[email] || 0;
   }
 }

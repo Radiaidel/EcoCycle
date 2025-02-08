@@ -32,13 +32,13 @@ export class RequestListComponent implements OnInit {
     this.filteredRequests$ = this.store.select(CollectRequestSelectors.selectFilteredCollectRequests)
     const currentUser = this.authService.getCurrentUser()
     this.userRole$ = currentUser?.role || "collecteur"
-    this.userCity$ = currentUser?.city || "" // Assurez-vous que la ville est bien récupérée de l'utilisateur
+    this.userCity$ = currentUser?.city || "" 
   }
 
   ngOnInit(): void {
     this.store.dispatch(CollectRequestActions.loadCollectRequests());
     this.initializePhotoIndices();
-    this.filterRequestsByRole(); // Appliquer le filtre de rôle
+    this.filterRequestsByRole();
   }
 
   initializePhotoIndices(): void {
@@ -55,9 +55,8 @@ export class RequestListComponent implements OnInit {
     this.filteredRequests$ = this.filteredRequests$.pipe(
       map(requests => {
         if (this.userRole$ === "collecteur") {
-          console.log(this.userCity$)
-        console.log(requests)
           return requests.filter(request => request.address.includes(this.userCity$));
+
         } else if (this.userRole$ === "particulier") {
           const currentUserEmail = this.authService.getCurrentUser()?.email || "";
           return requests.filter(request => request.userEmail === currentUserEmail);

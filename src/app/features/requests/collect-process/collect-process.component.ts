@@ -10,6 +10,7 @@ import { CollectRequest } from '../../../core/models/collect-request';
 import { CollectProcess } from '../../../core/models/collect-process.model';
 import { validateCollectRequest } from '../../../core/state/collect-process/collection-process.actions';
 import { NotificationService } from '../../../core/services/notification.service';
+import { updatePoints } from '../../../core/state/points/point.actions';
 
 @Component({
     standalone: true,
@@ -31,12 +32,11 @@ export class CollectProcessComponent {
     ];
 
     availableMaterials: MaterialType[] = [
-        { id: 'plastic', name: 'Plastique', icon: 'fas fa-wine-bottle' },
-        { id: 'paper', name: 'Papier', icon: 'fas fa-newspaper' },
-        { id: 'metal', name: 'Métal', icon: 'fas fa-cube' },
-        { id: 'glass', name: 'Verre', icon: 'fas fa-glass-martini' },
-        { id: 'electronics', name: 'Électronique', icon: 'fas fa-laptop' },
-        { id: 'organic', name: 'Organique', icon: 'fas fa-leaf' }
+        { id: 'plastic', name: 'plastique', icon: 'fas fa-wine-bottle' },
+        { id: 'papier', name: 'papier', icon: 'fas fa-newspaper' },
+        { id: 'metal', name: 'metal', icon: 'fas fa-cube' },
+        { id: 'glass', name: 'verre', icon: 'fas fa-glass-martini' },
+
     ];
 
 
@@ -55,7 +55,7 @@ export class CollectProcessComponent {
 
     private loadCurrentRequest() {
         const requestId = this.route.snapshot.paramMap.get('id');
-        
+
         if (requestId) {
             const collectRequests: CollectRequest[] = JSON.parse(localStorage.getItem('collectRequests') || '[]');
 
@@ -63,11 +63,11 @@ export class CollectProcessComponent {
 
             if (!this.currentRequest) {
                 this.notificationService.showMessage('Requête non trouvée pour cet ID.', 'error');
-                this.router.navigate(['/']);  
+                this.router.navigate(['/']);
             }
         } else {
             this.notificationService.showMessage('ID de la requête non valide.', 'error');
-            this.router.navigate(['/']);  
+            this.router.navigate(['/']);
         }
     }
 
@@ -168,7 +168,7 @@ export class CollectProcessComponent {
         const confirmed = window.confirm(
             'Êtes-vous sûr de vouloir annuler le processus ?'
         );
-    
+
         if (confirmed) {
             try {
                 if (this.currentRequest) {
@@ -180,7 +180,7 @@ export class CollectProcessComponent {
             }
         }
     }
-    
+
     async onSubmit() {
         if (this.collectForm.valid) {
             try {
@@ -188,7 +188,7 @@ export class CollectProcessComponent {
                     this.notificationService.showMessage('Erreur : la requête actuelle n\'est pas définie.', 'error');
                     return;
                 }
-    
+
                 const processDetails: CollectProcess = {
                     requestId: this.currentRequest.id,
                     wasteDetails: this.selectedMaterials
@@ -202,30 +202,48 @@ export class CollectProcessComponent {
                     validationDate: new Date().toISOString(),
                     collectorNotes: this.collectForm.get('notes')?.value
                 };
-    
+
                 this.store.dispatch(updateRequestStatus({
                     requestId: this.currentRequest.id,
                     status: 'validated'
                 }));
-    
+
+                const points = this.selectedMaterials.reduce((total, material) => {
+                    const weight = material.weight || 0;
+                    console.log(material.name + " " + weight)
+                    switch(material.name) {
+                        case 'plastique': console.log(total); return total + (weight * 2);
+                        case 'verre': console.log(total) ;return total + (weight * 1);
+                        case 'papier': console.log(total) ; return total + (weight * 1);
+                        case 'metal': console.log(total) ; return total + (weight * 5);
+                        default: return total;
+                    }
+                    
+                },0);
+                
+                this.store.dispatch(updatePoints({ 
+                    userEmail: this.currentRequest.userEmail, 
+                    points 
+                }));
+
+
                 this.store.dispatch(validateCollectRequest({
                     requestId: this.currentRequest.id,
                     processDetails
                 }));
-    
+
                 this.router.navigate(['/']);
-    
+
             } catch (error) {
                 console.error('Erreur lors de la validation:', error);
                 this.notificationService.showMessage('Une erreur est survenue lors de la validation.', 'error');
             }
         }
     }
-    
+
     private calculateTotalWeight(): number {
         return this.selectedMaterials.reduce((total, material) =>
             total + (Number(material.weight) || 0), 0);
     }
-    
 
 }    

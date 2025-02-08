@@ -1,6 +1,6 @@
 import { Inject, Injectable } from "@angular/core"
-import {  Observable, of, throwError, Subject, mergeMap } from "rxjs"
-import  { CollectRequest } from "../models/collect-request"
+import { Observable, of, throwError, Subject, mergeMap } from "rxjs"
+import { CollectRequest } from "../models/collect-request"
 import { NotificationService } from "./notification.service"
 
 @Injectable({
@@ -9,7 +9,7 @@ import { NotificationService } from "./notification.service"
 export class CollectRequestService {
   private static REQUESTS_KEY = "collectRequests";
 
-  constructor(private notificationService: NotificationService) {}
+  constructor(private notificationService: NotificationService) { }
 
   private validateRequestConstraints(request: CollectRequest, requests: CollectRequest[]): Observable<boolean> {
     const userRequests = requests.filter(
@@ -20,12 +20,15 @@ export class CollectRequestService {
       this.notificationService.showMessage("You cannot have more than 3 pending requests simultaneously.", "error");
       return of(false);
     }
+    const totalWeight = userRequests
+      .reduce((sum, req) => sum + req.estimatedWeight, 0);
 
-    const totalWeight = userRequests.reduce((sum, req) => sum + req.estimatedWeight, 0) + request.estimatedWeight;
+      console.log(totalWeight)
     if (totalWeight > 10000) {
-      this.notificationService.showMessage("Total weight of you pending requests cannot exceed 10kg.", "error");
+      this.notificationService.showMessage("Total weight of your pending requests cannot exceed 10kg.", "error");
       return of(false);
     }
+
 
     return of(true);
   }
@@ -130,19 +133,19 @@ export class CollectRequestService {
   updateStatus(requestId: string, status: string): Observable<CollectRequest> {
     const storedRequests = localStorage.getItem(CollectRequestService.REQUESTS_KEY);
     const requests: CollectRequest[] = storedRequests ? JSON.parse(storedRequests) : [];
-  
+
     const request = requests.find((req) => req.id === requestId);
     if (!request) {
       this.notificationService.showMessage("Request not found.", "error");
       return of();
     }
-  
+
     request.status = status;
     localStorage.setItem(CollectRequestService.REQUESTS_KEY, JSON.stringify(requests));
-  
+
     this.notificationService.showMessage("Request status successfully updated!", "success");
     return of(request);
   }
-  
-  
+
+
 }
