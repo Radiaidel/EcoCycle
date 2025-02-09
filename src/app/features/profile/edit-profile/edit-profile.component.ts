@@ -43,7 +43,7 @@
 //         console.log(this.user.birthDate)
 //         this.initForms()
 //         this.profileImage = this.user.profilePicture || null
-        
+
 //       }
 //     })
 //   }
@@ -177,6 +177,8 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop"
 import type { User } from "../../../core/models/user"
 import * as UserActions from "../../../core/state/user/user.actions"
 import { selectUser } from "../../../core/state/user/user.selectors"
+import { convertPoints } from "../../../core/state/points/point.actions"
+import { selectVoucherByEmail } from "../../../core/state/points/point.selectors"
 
 @Component({
   selector: "app-edit-profile",
@@ -196,25 +198,13 @@ export class EditProfileComponent implements OnInit {
   passwordForm!: FormGroup
   profileImage: string | ArrayBuffer | null = null
   today = new Date().toISOString().split("T")[0]
+  voucher: string = '';
 
-  // ngOnInit() {
-  //   this.store.dispatch(UserActions.loadUser())
 
-  //   this.store
-  //     .select(selectUser)
-  //     .pipe(takeUntilDestroyed(this.destroyRef))
-  //     .subscribe((user) => {
-  //       if (user) {
-  //         this.user = user
-  //         this.initForms()
-  //         this.profileImage = user.profilePicture || null
-  //       }
-  //     })
-  // }
 
   ngOnInit() {
     this.store.dispatch(UserActions.loadUser());
-    
+
     this.store.select(selectUser)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((user) => {
@@ -223,6 +213,21 @@ export class EditProfileComponent implements OnInit {
           this.initForms();
           this.profileImage = user.profilePicture || null;
         }
+      });
+
+    // Ajout de la souscription au voucher
+    this.store.select(state => state.points?.vouchers)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(vouchers => {
+        if (vouchers && this.user?.email) {
+          this.voucher = vouchers[this.user.email]?.toString() || '';
+        }
+      });
+
+      this.store.select(selectVoucherByEmail(this.user?.email || ''))
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(voucher => {
+        this.voucher = voucher;
       });
   }
 
@@ -307,5 +312,42 @@ export class EditProfileComponent implements OnInit {
       this.store.dispatch(UserActions.deleteAccount({ email: this.user.email }))
     }
   }
-}
 
+  convertPoints() {
+    if (!this.user?.email || !this.user?.points) return;
+
+    let pointsToConvert = 0;
+    if (this.user.points >= 500) pointsToConvert = 500;
+    else if (this.user.points >= 200) pointsToConvert = 200;
+    else if (this.user.points >= 100) pointsToConvert = 100;
+
+    this.store.dispatch(convertPoints({
+      userEmail: this.user.email,
+      points: pointsToConvert
+    }));
+
+    this.showConversion = false;
+
+  }
+
+  getConversionButtonText(): string {
+    if (!this.user?.points) return '';
+    if (this.user.points >= 500) return 'Convert 500 pts';
+    if (this.user.points >= 200) return 'Convert 200 pts';
+    return 'Convert 100 pts';
+  }
+
+  showConversion = false;
+  private hideTimeout: any;
+
+  hideConversion() {
+    this.hideTimeout = setTimeout(() => {
+      this.showConversion = false;
+    }, 300); // Délai pour éviter une fermeture immédiate
+  }
+
+  cancelHide() {
+    clearTimeout(this.hideTimeout); // Annule la fermeture si la souris est encore dessus
+  }
+
+}

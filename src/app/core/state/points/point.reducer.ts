@@ -3,12 +3,14 @@ import * as PointActions from './point.actions';
 
 export interface PointState {
   userPoints: { [key: string]: number };
+  vouchers: { [key: string]: number }; 
   error: string | null;
   loading: boolean;
 }
 
 export const initialState: PointState = {
   userPoints: {},
+    vouchers: {},
   error: null,
   loading: false
 };
@@ -33,11 +35,38 @@ export const pointReducer = createReducer(
     error,
     loading: false
   })),
-  on(PointActions.convertPointsSuccess, (state, { userEmail, remainingPoints }) => ({
+//   on(PointActions.convertPointsSuccess, (state, { userEmail, remainingPoints }) => ({
+//     ...state,
+//     userPoints: {
+//       ...state.userPoints,
+//       [userEmail]: remainingPoints
+//     }
+//   })),
+//   on(PointActions.convertPointsSuccess, (state, { userEmail, remainingPoints, voucher }) => ({
+//     ...state,
+//     userPoints: {
+//       ...state.userPoints,
+//       [userEmail]: remainingPoints
+//     },
+//     vouchers: {
+//       ...state.vouchers,
+//       [userEmail]: parseInt(voucher)
+//     }
+//   }))
+
+  on(PointActions.loadVouchersSuccess, (state, { vouchers }) => ({
+    ...state,
+    vouchers
+  })),
+  on(PointActions.convertPointsSuccess, (state, { userEmail, remainingPoints, voucher }) => ({
     ...state,
     userPoints: {
       ...state.userPoints,
       [userEmail]: remainingPoints
+    },
+    vouchers: {
+      ...state.vouchers,
+      [userEmail]: parseInt(voucher)
     }
   }))
 );

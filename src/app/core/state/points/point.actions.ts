@@ -29,3 +29,9 @@ export const convertPointsFailure = createAction(
   '[Points] Convert Points Failure',
   props<{ error: string }>()
 );
+
+// point.actions.ts
+export const loadVouchersSuccess = createAction(
+    '[Points] Load Vouchers Success',
+    props<{ vouchers: { [key: string]: number } }>()
+  );

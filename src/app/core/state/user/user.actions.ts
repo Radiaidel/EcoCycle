@@ -20,3 +20,7 @@ export const deleteAccount = createAction("[User] Delete Account", props<{ email
 export const deleteAccountSuccess = createAction("[User] Delete Account Success")
 export const deleteAccountFailure = createAction("[User] Delete Account Failure", props<{ error: any }>())
 
+export const updateVoucher = createAction(
+    '[User] Update Voucher',
+    props<{ userEmail: string, voucherAmount: number }>()
+  );
