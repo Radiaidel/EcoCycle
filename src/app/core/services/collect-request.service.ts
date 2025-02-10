@@ -11,27 +11,35 @@ export class CollectRequestService {
 
   constructor(private notificationService: NotificationService) { }
 
-  private validateRequestConstraints(request: CollectRequest, requests: CollectRequest[]): Observable<boolean> {
+  private validateRequestConstraints(request: CollectRequest, requests: CollectRequest[], isEdit: boolean = false): Observable<boolean> {
     const userRequests = requests.filter(
       (req) => req.userEmail === request.userEmail && req.status === "pending"
     );
-
+  
     if (userRequests.length >= 3) {
       this.notificationService.showMessage("You cannot have more than 3 pending requests simultaneously.", "error");
       return of(false);
     }
-    const totalWeight = userRequests
-      .reduce((sum, req) => sum + req.estimatedWeight, 0);
-
-      console.log(totalWeight)
-    if (totalWeight > 10000) {
+  
+    let totalWeight = userRequests.reduce((sum, req) => sum + req.estimatedWeight, 0);
+  
+    if (isEdit) {
+      const existingRequest = userRequests.find(req => req.id === request.id);
+      if (existingRequest) {
+        totalWeight -= existingRequest.estimatedWeight;
+      }
+    }
+  
+    totalWeight += request.estimatedWeight;
+  
+    if (totalWeight > 10000) { 
       this.notificationService.showMessage("Total weight of your pending requests cannot exceed 10kg.", "error");
       return of(false);
     }
-
-
+  
     return of(true);
   }
+  
 
   getRequestsByUserEmail(userEmail: string): Observable<CollectRequest[]> {
     const storedRequests = localStorage.getItem(CollectRequestService.REQUESTS_KEY);
@@ -51,13 +59,13 @@ export class CollectRequestService {
   addRequest(request: CollectRequest): Observable<CollectRequest> {
     const storedRequests = localStorage.getItem(CollectRequestService.REQUESTS_KEY);
     const requests: CollectRequest[] = storedRequests ? JSON.parse(storedRequests) : [];
-
-    return this.validateRequestConstraints(request, requests).pipe(
+  
+    return this.validateRequestConstraints(request, requests, false).pipe(
       mergeMap((isValid) => {
         if (!isValid) {
           return of();
         }
-
+  
         requests.push(request);
         localStorage.setItem(CollectRequestService.REQUESTS_KEY, JSON.stringify(requests));
         this.notificationService.showMessage("Request successfully added!", "success");
@@ -65,28 +73,28 @@ export class CollectRequestService {
       })
     );
   }
-
+  
   updateRequest(updatedRequest: CollectRequest): Observable<CollectRequest> {
     const storedRequests = localStorage.getItem(CollectRequestService.REQUESTS_KEY);
     const requests: CollectRequest[] = storedRequests ? JSON.parse(storedRequests) : [];
-
+  
     const index = requests.findIndex((req) => req.id === updatedRequest.id);
     if (index === -1) {
       this.notificationService.showMessage("Request not found.", "error");
       return of();
     }
-
+  
     if (requests[index].status !== "pending") {
       this.notificationService.showMessage("Only pending requests can be modified.", "error");
       return of();
     }
-
-    return this.validateRequestConstraints(updatedRequest, requests).pipe(
+  
+    return this.validateRequestConstraints(updatedRequest, requests, true).pipe(
       mergeMap((isValid) => {
         if (!isValid) {
           return of();
         }
-
+  
         requests[index] = updatedRequest;
         localStorage.setItem(CollectRequestService.REQUESTS_KEY, JSON.stringify(requests));
         this.notificationService.showMessage("Request successfully updated!", "success");
@@ -94,6 +102,7 @@ export class CollectRequestService {
       })
     );
   }
+  
 
   deleteRequest(id: string): Observable<string> {
     const storedRequests = localStorage.getItem(CollectRequestService.REQUESTS_KEY);

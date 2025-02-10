@@ -1,11 +1,11 @@
-import { Component,  OnInit,  OnDestroy, inject } from "@angular/core"
-import {  FormBuilder, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms"
-import  { Subscription } from "rxjs"
-import  { CollectRequestService } from "../../../core/services/collect-request.service"
-import  { AuthService } from "../../../core/services/auth.service"
+import { Component, OnInit, OnDestroy, inject } from "@angular/core"
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms"
+import { Subscription } from "rxjs"
+import { CollectRequestService } from "../../../core/services/collect-request.service"
+import { AuthService } from "../../../core/services/auth.service"
 import { CommonModule } from "@angular/common"
-import  { Router, ActivatedRoute } from "@angular/router"
-import  { CollectRequest } from "../../../core/models/collect-request"
+import { Router, ActivatedRoute } from "@angular/router"
+import { CollectRequest } from "../../../core/models/collect-request"
 import { Store } from "@ngrx/store"
 import { CollectRequestState } from "../../../core/state/collect-request/collect-request.reducer"
 import { addCollectRequest, loadCollectRequests, updateCollectRequest } from "../../../core/state/collect-request/collect-request.actions"
@@ -24,13 +24,14 @@ export class CollectRequestComponent implements OnInit, OnDestroy {
   private subscriptions: Subscription[] = []
   collectRequest: CollectRequest | null = null
   isEditMode = false
-
+  isFormDirty: boolean = false;
+  isSubmitted: boolean = false;
 
   private store = inject(Store<CollectRequestState>);
   private fb = inject(FormBuilder);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
-private authService = inject(AuthService);
+  private authService = inject(AuthService);
 
   constructor(
   ) {
@@ -88,6 +89,8 @@ private authService = inject(AuthService);
       } else {
         this.store.dispatch(addCollectRequest({ request: requestData }));
       }
+      this.isSubmitted = true;
+      this.isFormDirty = false;
 
       this.router.navigate(["/requests"]);
     } else {
@@ -96,6 +99,7 @@ private authService = inject(AuthService);
   }
 
   markFormGroupTouched(formGroup: FormGroup) {
+    this.isFormDirty = true;
     Object.values(formGroup.controls).forEach((control) => {
       control.markAsTouched();
       if (control instanceof FormGroup) {
@@ -133,8 +137,14 @@ private authService = inject(AuthService);
     return inputDate > today ? null : { dateInvalid: true };
   }
 
+
+
   canDeactivate(): boolean {
-    return confirm('Are you sure you want to leave this page? Unsaved changes will be lost.');
+    // Bloquer la navigation uniquement si le formulaire a été modifié mais non soumis
+    if (this.isFormDirty && !this.isSubmitted) {
+      return confirm('Are you sure you want to leave this page? Unsaved changes will be lost.');
+    }
+    return true;
   }
-  
+
 }

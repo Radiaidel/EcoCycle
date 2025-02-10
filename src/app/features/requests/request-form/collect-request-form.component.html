@@ -117,16 +117,16 @@
           <input type="time" formControlName="preferredTime"
             class="w-full px-4 py-3 rounded-xl bg-gray-800 border border-gray-600 text-white focus:border-green-500 focus:ring-2 focus:ring-green-500/20 transition-all"
             [ngClass]="{'border-red-500': collectRequestForm.get('preferredTime')?.touched && collectRequestForm.get('preferredTime')?.invalid}">
-          <div *ngIf="collectRequestForm.get('preferredTime')?.touched && collectRequestForm.get('preferredTime')?.invalid"
-            class="mt-2 text-sm text-red-400">
-            <span *ngIf="collectRequestForm.get('preferredTime')?.errors?.['required']">
-              <i class="fas fa-exclamation-circle mr-1"></i>
-              L'heure est requise
-            </span>
-            <span *ngIf="collectRequestForm.get('preferredTime')?.errors?.['timeRange']">
-              <i class="fas fa-exclamation-circle mr-1"></i>
-              L'heure doit être entre 9h et 18h
-            </span>
+            <div
+            *ngIf="collectRequestForm.get('preferredTime')?.touched && collectRequestForm.get('preferredTime')?.invalid"
+            class="mt-1 text-sm text-red-400">
+            <span
+              *ngIf="collectRequestForm.get('preferredTime')?.errors?.['required']">L'heure
+              est requise</span>
+                      
+            <div *ngIf="collectRequestForm.get('preferredTime')?.touched && collectRequestForm.get('preferredTime')?.invalid" class="text-red-400 text-sm">
+              L'heure doit être inférieure à 18:00.
+            </div>
           </div>
         </div>
       </div>
