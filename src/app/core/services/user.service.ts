@@ -11,6 +11,7 @@ export class UserService {
   private static USERS_KEY = 'users';
   private static CURRENT_USER_KEY = 'currentUser';
   private currentUserSubject: BehaviorSubject<User | null>;
+  private static POINTS_KEY = 'user_points';
 
   constructor() {
     const storedUser = localStorage.getItem(UserService.CURRENT_USER_KEY);
@@ -20,23 +21,6 @@ export class UserService {
   getCurrentUser(): Observable<User | null> {
     return this.currentUserSubject.asObservable();
   }
-
-  // updateUser(updatedUser: User): Observable<boolean> {
-  //   return of(updatedUser).pipe(
-  //     tap(user => {
-  //       const users = this.getUsers();
-  //       const index = users.findIndex(u => u.email === user.email);
-  //       if (index !== -1) {
-  //         users[index] = user;
-  //         this.saveUsers(users);
-  //         localStorage.setItem(UserService.CURRENT_USER_KEY, JSON.stringify(user));
-  //         this.currentUserSubject.next(user);
-  //       }
-  //     }),
-  //     map(() => true),
-  //     catchError(() => of(false))
-  //   );
-  // }
 
   changePassword(email: string, oldPassword: string, newPassword: string): Observable<boolean> {
     return of(this.getUsers()).pipe(
@@ -66,52 +50,26 @@ export class UserService {
     );
   }
 
-  private getUsers(): User[] {
-    return JSON.parse(localStorage.getItem(UserService.USERS_KEY) || '[]');
-  }
-
-  private saveUsers(users: User[]): void {
-    localStorage.setItem(UserService.USERS_KEY, JSON.stringify(users));
-  }
-
-  
-  private static POINTS_KEY = 'user_points';
 
   updateUser(updatedUser: Partial<User>): Observable<boolean> {
-    console.log('Updating user:', updatedUser);
     return of(updatedUser).pipe(
       tap(userUpdate => {
         const users = this.getUsers();
         const index = users.findIndex(u => u.email === userUpdate.email);
         
         if (index !== -1) {
-          // Fusionner les données existantes avec les mises à jour
           const existingUser = users[index];
-          const updatedUserData = {
-            ...existingUser,
-            ...userUpdate,
-          };
+          const updatedUserData = { ...existingUser, ...userUpdate };
           
+          // Mettre à jour les users
           users[index] = updatedUserData;
           this.saveUsers(users);
-
-          // Mettre à jour l'utilisateur courant si c'est le même
+          
+          // Mettre à jour current user
           const currentUser = this.currentUserSubject.value;
           if (currentUser && currentUser.email === userUpdate.email) {
-            const updatedCurrentUser = {
-              ...currentUser,
-              ...userUpdate,
-            };
-            localStorage.setItem(
-              UserService.CURRENT_USER_KEY,
-              JSON.stringify(updatedCurrentUser)
-            );
-            this.currentUserSubject.next(updatedCurrentUser);
-          }
-
-          // Mettre à jour les points si nécessaire
-          if (userUpdate.points !== undefined && userUpdate.email !== undefined) {
-            this.updateUserPoints(userUpdate.email, userUpdate.points);
+            localStorage.setItem(UserService.CURRENT_USER_KEY, JSON.stringify(updatedUserData));
+            this.currentUserSubject.next(updatedUserData);
           }
         }
       }),
@@ -123,6 +81,15 @@ export class UserService {
     );
   }
 
+  
+  private getUsers(): User[] {
+    return JSON.parse(localStorage.getItem(UserService.USERS_KEY) || '[]');
+  }
+
+  private saveUsers(users: User[]): void {
+    localStorage.setItem(UserService.USERS_KEY, JSON.stringify(users));
+    console.log("Users updated in localStorage:", users);
+  }
   private updateUserPoints(email: string, points: number): void {
     const storedPoints = localStorage.getItem(UserService.POINTS_KEY);
     let pointsData: { [key: string]: number } = storedPoints ? JSON.parse(storedPoints) : {};

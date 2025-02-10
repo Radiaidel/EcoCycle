@@ -44,16 +44,18 @@ export class UserEffects {
       ),
     ),
   );
-
   updateUser$ = createEffect(() =>
     this.actions$.pipe(
       ofType(UserActions.updateUser),
       mergeMap(({ user }) =>
         this.userService.updateUser(user).pipe(
-          map(() => {
-            this.notificationService.showMessage("Profile updated successfully!", "success");
-            this.authService.updateUserProfileImage(user.profilePicture || "");
-            return UserActions.updateUserSuccess({ user });
+          map((success) => {
+            if (success) {
+              this.notificationService.showMessage("Profile updated successfully!", "success");
+              // Retourner l'utilisateur fourni dans l'action, pas la réponse du service
+              return UserActions.updateUserSuccess({ user });
+            }
+            throw new Error('Update failed');
           }),
           catchError((error) => {
             this.notificationService.showMessage("Failed to update profile.", "error");

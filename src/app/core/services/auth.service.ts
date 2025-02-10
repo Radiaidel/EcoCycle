@@ -60,6 +60,7 @@ export class AuthService {
     const user = this.getUsers().find(user => user.email === email && user.password === password);
     if (user) {
       localStorage.setItem(AuthService.CURRENT_USER_KEY, JSON.stringify(user));
+      this.currentUserSubject.next(user);
       this.authStateSubject.next({ isLoggedIn: true, userProfileImage: user.profilePicture || '' });
       this.userLoggedInSubject.next(true); 
       return true;
@@ -67,28 +68,15 @@ export class AuthService {
     return false;
   }
 
-  // login(email: string, password: string): boolean {
-  //   const user = this.getUsers().find(user => user.email === email && user.password === password);
-  //   if (user) {
-  //     localStorage.setItem(AuthService.CURRENT_USER_KEY, JSON.stringify(user));
-  //     this.authStateSubject.next({ isLoggedIn: true, userProfileImage: user.profilePicture || '' });
-  //     return true;
-  //   }
-  //   return false;
-  // }
-
   logout(): void {
     localStorage.removeItem(AuthService.CURRENT_USER_KEY);
+    this.currentUserSubject.next(null);
     this.authStateSubject.next({ isLoggedIn: false, userProfileImage: '' });
   }
 
   isLoggedIn(): boolean {
     return !!localStorage.getItem(AuthService.CURRENT_USER_KEY);
   }
-
-  // getCurrentUser(): User | null {
-  //   return JSON.parse(localStorage.getItem(AuthService.CURRENT_USER_KEY) || 'null');
-  // }
 
   updateUserProfileImage(newImageUrl: string): void {
     const currentUser = this.getCurrentUser();

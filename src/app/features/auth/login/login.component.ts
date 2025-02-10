@@ -31,6 +31,14 @@ export class LoginComponent {
     return this.loginForm.controls;
   }
 
+  ngOnInit() {
+    this.authService.currentUser.subscribe(user => {
+      if (user) {
+        this.router.navigate(['/requests']);
+      }
+    });
+  }
+  
   onSubmit(): void {
     if (this.loginForm.invalid) {
       return;

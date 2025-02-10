@@ -35,24 +35,36 @@ export const pointReducer = createReducer(
     error,
     loading: false
   })),
-//   on(PointActions.convertPointsSuccess, (state, { userEmail, remainingPoints }) => ({
-//     ...state,
-//     userPoints: {
-//       ...state.userPoints,
-//       [userEmail]: remainingPoints
-//     }
-//   })),
-//   on(PointActions.convertPointsSuccess, (state, { userEmail, remainingPoints, voucher }) => ({
-//     ...state,
-//     userPoints: {
-//       ...state.userPoints,
-//       [userEmail]: remainingPoints
-//     },
-//     vouchers: {
-//       ...state.vouchers,
-//       [userEmail]: parseInt(voucher)
-//     }
-//   }))
+  on(PointActions.convertPointsSuccess, (state, { userEmail, remainingPoints }) => ({
+    ...state,
+    userPoints: {
+      ...state.userPoints,
+      [userEmail]: remainingPoints
+    }
+  })),
+  // on(PointActions.convertPointsSuccess, (state, { userEmail, remainingPoints, voucher }) => ({
+  //   ...state,
+  //   userPoints: {
+  //     ...state.userPoints,
+  //     [userEmail]: remainingPoints
+  //   },
+  //   vouchers: {
+  //     ...state.vouchers,
+  //     [userEmail]: parseInt(voucher)
+  //   }
+  // })),
+
+  on(PointActions.convertPointsSuccess, (state, { userEmail, remainingPoints, voucher }) => ({
+    ...state,
+    userPoints: {
+        ...state.userPoints,
+        [userEmail]: remainingPoints
+    },
+    vouchers: {
+        ...state.vouchers,
+        [userEmail]: parseInt(voucher) // Le voucher contient maintenant le total
+    }
+})),
 
   on(PointActions.loadVouchersSuccess, (state, { vouchers }) => ({
     ...state,
