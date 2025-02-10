@@ -214,7 +214,6 @@ export class EditProfileComponent implements OnInit {
           this.profileImage = user.profilePicture || null;
         }
       });
-
     // Ajout de la souscription au voucher
     this.store.select(state => state.points?.vouchers)
       .pipe(takeUntilDestroyed(this.destroyRef))

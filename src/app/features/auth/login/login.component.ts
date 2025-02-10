@@ -40,7 +40,7 @@ export class LoginComponent {
 
     if (this.authService.login(email, password)) {
       this.notificationService.showMessage('Login successful!', 'success');
-      this.router.navigate(['/profile']);  
+      this.router.navigate(['/requests']);  
     } else {
       this.notificationService.showMessage('Invalid credentials. Please try again.', 'error');
     }

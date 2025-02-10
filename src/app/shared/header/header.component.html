@@ -1,4 +1,4 @@
-<header class="fixed top-0 w-full bg-dark-green text-white shadow-md z-50">
+<header class="fixed top-0 w-full bg-dark-green border-b border-green-500 text-white shadow-lg z-50 backdrop-blur-sm bg-opacity-90">
   <nav class="container mx-auto px-4">
     <div class="flex items-center justify-between h-16">
       <!-- Logo -->
@@ -12,42 +12,39 @@
       <div class="hidden md:flex items-center space-x-4">
         <ng-container *ngIf="!isLoggedIn">
           <button routerLink="/login"
-            class="px-4 py-2 hover:border hover:border-green-700  rounded-md ">
+            class="px-4 py-2 text-gray-300 hover:text-white hover:bg-gray-800 rounded-lg transition-all duration-300">
             Sign in
           </button>
           <button routerLink="/register"
-            class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">
+            class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all duration-300 shadow-lg shadow-green-500/20">
             Sign Up
           </button>
         </ng-container>
 
         <ng-container *ngIf="isLoggedIn">
-          <a *ngIf="userRole === 'collecteur'" routerLink="/home" class="px-3 py-2 hover:text-gray-200">
-            process-collecte
-          </a>
           <a routerLink="/requests"
-            class="px-3 py-2 hover:text-gray-200">
+            class="px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-800 rounded-lg transition-all duration-300">
             Requests
           </a>
 
           <!-- Dropdown Profile -->
           <div class="relative">
             <button (click)="toggleDropdown()"
-              class="flex items-center focus:outline-none">
+              class="flex items-center focus:outline-none p-1 hover:bg-gray-800 rounded-lg transition-all duration-300">
               <img [src]="userProfileImage"
                 alt="Profile"
-                class="h-8 w-8 rounded-full object-cover">
+                class="h-8 w-8 rounded-lg object-cover border-2 border-green-500">
             </button>
 
             <div *ngIf="isDropdownOpen"
-              class="absolute right-0 mt-2 w-48 bg-dark-green border border-white rounded-md shadow-lg py-1">
+              class="absolute right-0 mt-2 w-48 bg-gray-800 border border-gray-700 rounded-lg shadow-xl py-1 backdrop-blur-lg">
               <a routerLink="/profile"
-                class="block px-4 py-2 text-white hover:text-gray-200">
+                class="block px-4 py-2 text-gray-300 hover:text-white hover:bg-gray-700 transition-all duration-300">
                 Profile
               </a>
 
               <button (click)="logout()"
-                class="block w-full text-left px-4 py-2 text-white hover:text-red-400 ">
+                class="block w-full text-left px-4 py-2 text-gray-300 hover:text-red-400 hover:bg-gray-700 transition-all duration-300">
                 LogOut
               </button>
             </div>
@@ -58,7 +55,7 @@
       <!-- Menu burger pour mobile -->
       <div class="md:hidden">
         <button (click)="toggleMobileMenu()"
-          class="p-2 rounded-md hover:text-green-600 focus:outline-none">
+          class="p-2 rounded-lg hover:bg-gray-800 transition-all duration-300 focus:outline-none">
           <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24"
             stroke="currentColor">
             <path *ngIf="!isMobileMenuOpen"
@@ -77,35 +74,32 @@
     </div>
 
     <!-- Menu mobile -->
-    <div *ngIf="isMobileMenuOpen" class="md:hidden">
+    <div *ngIf="isMobileMenuOpen" 
+         class="md:hidden absolute left-0 right-0 bg-gray-800 border-t border-gray-700 shadow-xl">
       <div class="px-2 pt-2 pb-3 space-y-1">
         <ng-container *ngIf="!isLoggedIn">
           <a routerLink="/login"
-            class="block px-3 py-2 hover:text-green-600">
+            class="block px-4 py-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-300">
             Sign in
           </a>
           <a routerLink="/register"
-            class="block px-3 py-2 hover:text-green-600">
+            class="block px-4 py-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-300">
             Sign Up
           </a>
         </ng-container>
 
         <ng-container *ngIf="isLoggedIn">
-
-          <a *ngIf="userRole === 'collecteur'" routerLink="/home" class="block px-3 py-2 hover:text-green-600">
-            process-collecte
-          </a>
           <a routerLink="/requests"
-            class="block px-3 py-2 hover:text-green-600">
+            class="block px-4 py-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-300">
             Requests
           </a>
           <a routerLink="/profile"
-            class="block px-3 py-2 hover:text-green-600">
+            class="block px-4 py-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-300">
             Profile
           </a>
 
           <button (click)="logout()"
-            class="block w-full text-left px-3 py-2 hover:text-green-600">
+            class="block w-full text-left px-4 py-2 text-gray-300 hover:text-red-400 hover:bg-gray-700 rounded-lg transition-all duration-300">
             LogOut
           </button>
         </ng-container>

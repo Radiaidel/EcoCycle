@@ -2,24 +2,24 @@
   <!-- Main Container -->
   <div class="max-w-4xl mx-auto">
     <!-- Profile Card -->
-    <div class="bg-gray-100 rounded-2xl shadow-2xl overflow-hidden p-6">
+    <div class="bg-gray-800 rounded-2xl shadow-2xl overflow-hidden p-6">
       <!-- Profile Header -->
-      <div class="relative h-40 bg-dark-green">
+      <div class="relative h-40 bg-gradient-to-r from-green-800 to-green-600">
         <div class="absolute -bottom-12 left-8 flex items-center w-full">
           <div class="relative">
             <img
               [src]="profileImage || user?.profilePicture || 'https://thumbs.dreamstime.com/b/default-avatar-profile-icon-vector-social-media-user-image-182145777.jpg'"
               alt="Profile"
-              class="w-24 h-24 rounded-xl border-4 border-white shadow-lg object-cover" />
+              class="w-24 h-24 rounded-xl border-4 border-gray-800 shadow-lg object-cover" />
             <input
               type="file"
               (change)="onFileSelected($event)"
               accept="image/*"
               class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
             <div class="absolute -right-2 -bottom-2">
-              <div class="bg-white p-1.5 rounded-full shadow-lg">
+              <div class="bg-gray-700 p-1.5 rounded-full shadow-lg">
                 <svg xmlns="http://www.w3.org/2000/svg"
-                  class="h-4 w-4 text-gray-600" fill="none" viewBox="0 0 24 24"
+                  class="h-4 w-4 text-green-400" fill="none" viewBox="0 0 24 24"
                   stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round"
                     stroke-width="2"
@@ -29,92 +29,52 @@
             </div>
           </div>
 
-          <div class="flex w-full items-start ">
+          <div class="flex w-full items-start">
             <div class="ml-6 flex-grow">
               <div class="flex flex-col">
-                <h1 class="text-3xl font-bold text-white">{{ user?.fullName
-                  }}</h1>
+                <h1 class="text-3xl font-bold text-white">{{ user?.fullName }}</h1>
                 <span
                   [ngClass]="{
-                    'bg-emerald-700 text-white': user?.role === 'collecteur',
-                    'bg-blue-700 text-white': user?.role === 'particulier'
+                    'bg-green-600 text-white': user?.role === 'collecteur',
+                    'bg-blue-600 text-white': user?.role === 'particulier'
                   }"
                   class="inline-block mt-2 px-3 py-1 rounded-full text-sm font-medium w-max">
-                  {{ user?.role === 'collecteur' ? 'collecteur' : 'particulier'
-                  }}
+                  {{ user?.role === 'collecteur' ? 'collecteur' : 'particulier' }}
                 </span>
               </div>
             </div>
 
-            <!-- <div class="ml-auto mr-12 relative group">
-              <div class="flex items-center cursor-pointer">
-                <span class="text-2xl font-bold text-green-500 mr-2">{{ user?.points || 0 }}</span>
-                <span class="text-green-500 font-bold">Points</span>
-              </div>
-        
-              <div *ngIf="voucher" class="mt-2">
-                <span class="text-lg font-semibold text-blue-600">
-                  Bon d'achat: {{ voucher }} DH
-                </span>
-              </div>
-        
-              <div class="absolute right-0 top-full z-10 hidden group-hover:block mt-2 w-72 bg-white rounded-lg shadow-lg p-4">
-                <h3 class="text-lg font-semibold text-green-900 mb-3">Points Conversion</h3>
-                <div class="space-y-2">
-                  <div class="flex justify-between items-center">
-                    <span class="text-gray-700">100 points</span>
-                    <span class="text-green-700 font-medium">50 DH Voucher</span>
-                  </div>
-                  <div class="flex justify-between items-center">
-                    <span class="text-gray-700">200 points</span>
-                    <span class="text-green-700 font-medium">120 DH Voucher</span>
-                  </div>
-                  <div class="flex justify-between items-center">
-                    <span class="text-gray-700">500 points</span>
-                    <span class="text-green-700 font-medium">350 DH Voucher</span>
-                  </div>
-                </div>
-                <div *ngIf="(user?.points ?? 0) >= 100" class="mt-4">
-                  <button
-                    class="w-full bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition"
-                    (click)="convertPoints()">
-                    {{ getConversionButtonText() }}
-                  </button>
-                </div>
-              </div>
-            </div> -->
-
-            <div class="ml-auto mr-12 relative group">
+            <div class="ml-auto mr-12 relative group" *ngIf="user?.role == 'particulier'">
               <div class="flex items-center cursor-pointer" (mouseenter)="showConversion = true" (mouseleave)="hideConversion()">
-                <span class="text-2xl font-bold text-green-500 mr-2">{{ user?.points || 0 }}</span>
-                <span class="text-green-500 font-bold">Points</span>
+                <span class="text-2xl font-bold text-green-400 mr-2">{{ user?.points || 0 }}</span>
+                <span class="text-green-400 font-bold">Points</span>
               </div>
         
               <div *ngIf="voucher" class="mt-2">
-                <span class="text-lg font-semibold text-blue-600">
+                <span class="text-lg font-semibold text-green-400">
                  {{ voucher }}DH Voucher
                 </span>
               </div>
 
               <div 
               *ngIf="showConversion" 
-              class="absolute right-0 top-full z-10 mt-2 w-72 bg-white rounded-lg shadow-lg p-4"
+              class="absolute right-0 top-full z-10 mt-2 w-72 bg-gray-700 rounded-lg shadow-lg p-4"
               (mouseenter)="cancelHide()" 
               (mouseleave)="hideConversion()">
               
-              <h3 class="text-lg font-semibold text-green-900 mb-3">Points Conversion</h3>
+              <h3 class="text-lg font-semibold text-green-400 mb-3">Points Conversion</h3>
                 <div class="space-y-2">
                   <div class="flex justify-between items-center">
-                    <span class="text-gray-700">100 points</span>
-                    <span class="text-green-700 font-medium">50 DH Voucher</span>
+                    <span class="text-gray-300">100 points</span>
+                    <span class="text-green-400 font-medium">50 DH Voucher</span>
                   </div>
                   <div class="flex justify-between items-center">
-                    <span class="text-gray-700">200 points</span>
-                    <span class="text-green-700 font-medium">120 DH Voucher</span>
+                    <span class="text-gray-300">200 points</span>
+                    <span class="text-green-400 font-medium">120 DH Voucher</span>
                   </div>
                   <div class="flex justify-between items-center">
-                    <span class="text-gray-700">500 points</span>
-                    <span class="text-green-700 font-medium">350 DH Voucher</span>
+                    <span class="text-gray-300">500 points</span>
+                    <span class="text-green-400 font-medium">350 DH Voucher</span>
                   </div>
                 </div>
                 <div *ngIf="(user?.points ?? 0) >= 100" class="mt-4">
@@ -135,12 +95,12 @@
         <form [formGroup]="profileForm" (ngSubmit)="updateProfile()"
           class="space-y-8">
           <!-- Personal Information -->
-          <div class="bg-gray-50 rounded-xl p-6">
+          <div class="bg-gray-700 rounded-xl p-6">
             <div class="flex items-center justify-between mb-6">
               <h2
-                class="text-xl font-semibold text-gray-800 flex items-center space-x-2">
+                class="text-xl font-semibold text-green-400 flex items-center space-x-2">
                 <svg xmlns="http://www.w3.org/2000/svg"
-                  class="h-5 w-5 text-green-500" fill="none"
+                  class="h-5 w-5 text-green-400" fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round"
@@ -153,66 +113,58 @@
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label
-                  class="block text-sm font-medium text-gray-700 mb-2">Full
-                  Name</label>
+                <label class="block text-sm font-medium text-gray-300 mb-2">Full Name</label>
                 <input
                   formControlName="fullName"
-                  class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent transition" />
+                  class="w-full px-4 py-2 rounded-lg bg-gray-800 border border-gray-600 text-white focus:ring-2 focus:ring-green-500 focus:border-transparent transition" />
                 <p
                   *ngIf="profileForm.get('fullName')?.invalid && profileForm.get('fullName')?.touched"
-                  class="mt-2 text-sm text-red-600">
-                  Full name is required and must be at least 3 characters
-                  long.
+                  class="mt-2 text-sm text-red-400">
+                  Full name is required and must be at least 3 characters long.
                 </p>
               </div>
               <div>
-                <label
-                  class="block text-sm font-medium text-gray-700 mb-2">Phone</label>
+                <label class="block text-sm font-medium text-gray-300 mb-2">Phone</label>
                 <input
                   formControlName="phone"
                   type="tel"
-                  class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent transition" />
+                  class="w-full px-4 py-2 rounded-lg bg-gray-800 border border-gray-600 text-white focus:ring-2 focus:ring-green-500 focus:border-transparent transition" />
                 <p
                   *ngIf="profileForm.get('phone')?.invalid && profileForm.get('phone')?.touched"
-                  class="mt-2 text-sm text-red-600">
+                  class="mt-2 text-sm text-red-400">
                   Please enter a valid 10-digit phone number.
                 </p>
               </div>
               <div>
-                <label
-                  class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                <label class="block text-sm font-medium text-gray-300 mb-2">Email</label>
                 <input
                   [value]="user?.email"
                   disabled
-                  class="w-full px-4 py-2 rounded-lg bg-gray-100 border border-gray-200 text-gray-600" />
+                  class="w-full px-4 py-2 rounded-lg bg-gray-900 border border-gray-700 text-gray-400" />
               </div>
               <div>
-                <label
-                  class="block text-sm font-medium text-gray-700 mb-2">Birth
-                  Date</label>
+                <label class="block text-sm font-medium text-gray-300 mb-2">Birth Date</label>
                 <input
                   formControlName="birthDate"
                   type="date"
                   [max]="today"
-                  class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent transition" />
+                  class="w-full px-4 py-2 rounded-lg bg-gray-800 border border-gray-600 text-white focus:ring-2 focus:ring-green-500 focus:border-transparent transition" />
                 <p
                   *ngIf="profileForm.get('birthDate')?.invalid && profileForm.get('birthDate')?.touched"
-                  class="mt-2 text-sm text-red-600">
-                  You must be at least 18 years old and the date must be
-                  in the past.
+                  class="mt-2 text-sm text-red-400">
+                  You must be at least 18 years old and the date must be in the past.
                 </p>
               </div>
             </div>
           </div>
 
           <!-- Address Section -->
-          <div class="bg-gray-50 rounded-xl p-6">
+          <div class="bg-gray-700 rounded-xl p-6">
             <div class="flex items-center justify-between mb-6">
               <h2
-                class="text-xl font-semibold text-gray-800 flex items-center space-x-2">
+                class="text-xl font-semibold text-green-400 flex items-center space-x-2">
                 <svg xmlns="http://www.w3.org/2000/svg"
-                  class="h-5 w-5 text-green-500" fill="none"
+                  class="h-5 w-5 text-green-400" fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round"
@@ -228,26 +180,24 @@
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label
-                  class="block text-sm font-medium text-gray-700 mb-2">Address</label>
+                <label class="block text-sm font-medium text-gray-300 mb-2">Address</label>
                 <input
                   formControlName="address"
-                  class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent transition" />
+                  class="w-full px-4 py-2 rounded-lg bg-gray-800 border border-gray-600 text-white focus:ring-2 focus:ring-green-500 focus:border-transparent transition" />
                 <p
                   *ngIf="profileForm.get('address')?.invalid && profileForm.get('address')?.touched"
-                  class="mt-2 text-sm text-red-600">
+                  class="mt-2 text-sm text-red-400">
                   Address is required.
                 </p>
               </div>
               <div>
-                <label
-                  class="block text-sm font-medium text-gray-700 mb-2">City</label>
+                <label class="block text-sm font-medium text-gray-300 mb-2">City</label>
                 <input
                   formControlName="city"
-                  class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent transition" />
+                  class="w-full px-4 py-2 rounded-lg bg-gray-800 border border-gray-600 text-white focus:ring-2 focus:ring-green-500 focus:border-transparent transition" />
                 <p
                   *ngIf="profileForm.get('city')?.invalid && profileForm.get('city')?.touched"
-                  class="mt-2 text-sm text-red-600">
+                  class="mt-2 text-sm text-red-400">
                   City is required.
                 </p>
               </div>
@@ -255,12 +205,12 @@
           </div>
 
           <!-- Password Section -->
-          <div class="bg-gray-50 rounded-xl p-6">
+          <div class="bg-gray-700 rounded-xl p-6">
             <div class="flex items-center justify-between mb-6">
               <h2
-                class="text-xl font-semibold text-gray-800 flex items-center space-x-2">
+                class="text-xl font-semibold text-green-400 flex items-center space-x-2">
                 <svg xmlns="http://www.w3.org/2000/svg"
-                  class="h-5 w-5 text-green-500" fill="none"
+                  class="h-5 w-5 text-green-400" fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round"
@@ -275,45 +225,38 @@
               class="space-y-6">
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label
-                    class="block text-sm font-medium text-gray-700 mb-2">Current
-                    Password</label>
+                  <label class="block text-sm font-medium text-gray-300 mb-2">Current Password</label>
                   <input
                     type="password"
                     formControlName="oldPassword"
-                    class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent transition" />
+                    class="w-full px-4 py-2 rounded-lg bg-gray-800 border border-gray-600 text-white focus:ring-2 focus:ring-green-500 focus:border-transparent transition" />
                   <p
                     *ngIf="passwordForm.get('oldPassword')?.invalid && passwordForm.get('oldPassword')?.touched"
-                    class="mt-2 text-sm text-red-600">
+                    class="mt-2 text-sm text-red-400">
                     Current password is required.
                   </p>
                 </div>
                 <div>
-                  <label
-                    class="block text-sm font-medium text-gray-700 mb-2">New
-                    Password</label>
+                  <label class="block text-sm font-medium text-gray-300 mb-2">New Password</label>
                   <input
                     type="password"
                     formControlName="newPassword"
-                    class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent transition" />
+                    class="w-full px-4 py-2 rounded-lg bg-gray-800 border border-gray-600 text-white focus:ring-2 focus:ring-green-500 focus:border-transparent transition" />
                   <p
                     *ngIf="passwordForm.get('newPassword')?.invalid && passwordForm.get('newPassword')?.touched"
-                    class="mt-2 text-sm text-red-600">
-                    New password is required and must be at least 6
-                    characters long.
+                    class="mt-2 text-sm text-red-400">
+                    New password is required and must be at least 6 characters long.
                   </p>
                 </div>
               </div>
               <div>
-                <label
-                  class="block text-sm font-medium text-gray-700 mb-2">Confirm
-                  New Password</label>
+                <label class="block text-sm font-medium text-gray-300 mb-2">Confirm New Password</label>
                 <input
                   type="password"
                   formControlName="confirmPassword"
-                  class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent transition" />
+                  class="w-full px-4 py-2 rounded-lg bg-gray-800 border border-gray-600 text-white focus:ring-2 focus:ring-green-500 focus:border-transparent transition" />
                 <p *ngIf="passwordForm.hasError('mismatch')"
-                  class="mt-2 text-sm text-red-600">
+                  class="mt-2 text-sm text-red-400">
                   Passwords do not match.
                 </p>
               </div>
@@ -321,7 +264,7 @@
                 <button
                   type="submit"
                   [disabled]="passwordForm.invalid"
-                  class="px-6 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition duration-200 disabled:opacity-50">
+                  class="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition duration-200 disabled:opacity-50">
                   Update Password
                 </button>
               </div>
@@ -333,13 +276,13 @@
             <button
               type="button"
               (click)="deleteAccount()"
-              class="px-6 py-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition duration-200">
+              class="px-6 py-2 text-red-400 hover:text-red-300 hover:bg-red-900/30 rounded-lg transition duration-200">
               Delete Account
             </button>
             <button
               type="submit"
               [disabled]="profileForm.invalid"
-              class="px-6 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg shadow-lg shadow-green-500/30 transition duration-200 disabled:opacity-50">
+              class="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg shadow-lg shadow-green-500/30 transition duration-200 disabled:opacity-50">
               Save Changes
             </button>
           </div>

@@ -245,5 +245,8 @@ export class CollectProcessComponent {
         return this.selectedMaterials.reduce((total, material) =>
             total + (Number(material.weight) || 0), 0);
     }
-
+    canDeactivate(): boolean {
+        return confirm('Are you sure you want to leave this page? Unsaved changes will be lost.');
+      }
+      
 }    

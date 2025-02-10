@@ -15,7 +15,23 @@ export class AuthService {
 
   authState$ = this.authStateSubject.asObservable();
 
-  constructor() {}
+  private currentUserSubject: BehaviorSubject<User | null>;
+  public currentUser: Observable<User | null>;
+
+  constructor() {
+    const user = JSON.parse(localStorage.getItem('currentUser') || 'null');
+    this.currentUserSubject = new BehaviorSubject<User | null>(user);
+    this.currentUser = this.currentUserSubject.asObservable();
+  }
+
+  public get currentUserValue(): User | null {
+    return this.currentUserSubject.value;
+  }
+
+  getCurrentUser(): User | null {
+    return this.currentUserValue;
+  }
+
 
   private getUsers(): User[] {
     return JSON.parse(localStorage.getItem(AuthService.USERS_KEY) || '[]');
@@ -70,9 +86,9 @@ export class AuthService {
     return !!localStorage.getItem(AuthService.CURRENT_USER_KEY);
   }
 
-  getCurrentUser(): User | null {
-    return JSON.parse(localStorage.getItem(AuthService.CURRENT_USER_KEY) || 'null');
-  }
+  // getCurrentUser(): User | null {
+  //   return JSON.parse(localStorage.getItem(AuthService.CURRENT_USER_KEY) || 'null');
+  // }
 
   updateUserProfileImage(newImageUrl: string): void {
     const currentUser = this.getCurrentUser();

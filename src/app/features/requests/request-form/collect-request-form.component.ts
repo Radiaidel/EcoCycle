@@ -132,4 +132,9 @@ private authService = inject(AuthService);
     const inputDate = new Date(control.value);
     return inputDate > today ? null : { dateInvalid: true };
   }
+
+  canDeactivate(): boolean {
+    return confirm('Are you sure you want to leave this page? Unsaved changes will be lost.');
+  }
+  
 }

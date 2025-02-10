@@ -1,132 +1,160 @@
 <div class="min-h-screen bg-dark-green p-6">
-    <div class="max-w-3xl mx-auto bg-gray-100 rounded-3xl shadow-xl p-8">
-  
-      <form [formGroup]="collectRequestForm" (ngSubmit)="onSubmit()"
-        class="space-y-6">
-        <div class="space-y-4">
-          <label class="block text-sm font-medium text-gray-700">Photos des
-            déchets</label>
-          <div class="flex flex-wrap gap-4">
-            <div *ngFor="let photo of photos" class="relative">
-              <img [src]="photo" class="w-24 h-24 rounded-lg object-cover">
-              <button type="button" (click)="removePhoto(photo)"
-                class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center">
-                ×
-              </button>
-            </div>
-            <div (click)="fileInput.click()"
-              class="w-24 h-24 rounded-lg bg-gray-100 flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors">
-              <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor"
-                viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round"
-                  stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+  <div class="max-w-3xl mx-auto bg-gray-800/90 backdrop-blur-lg rounded-2xl shadow-2xl p-8 border border-gray-700">
+    <h2 class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-600 mb-8 flex items-center">
+      <i class="fas fa-leaf mr-3 text-green-400"></i>
+      Nouvelle Demande de Collecte
+    </h2>
+
+    <form [formGroup]="collectRequestForm" (ngSubmit)="onSubmit()" class="space-y-8">
+      <!-- Section Photos -->
+      <div class="space-y-4">
+        <label class="block text-sm font-medium text-green-400 flex items-center">
+          <i class="fas fa-camera mr-2"></i>
+          Photos des déchets
+        </label>
+        <div class="flex flex-wrap gap-4">
+          <div *ngFor="let photo of photos" class="relative group">
+            <img [src]="photo" class="w-24 h-24 rounded-xl object-cover border-2 border-gray-700 group-hover:border-green-500 transition-all duration-300">
+            <button type="button" (click)="removePhoto(photo)"
+              class="absolute -top-2 -right-2 bg-red-500/90 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-red-600">
+              ×
+            </button>
+          </div>
+          <div (click)="fileInput.click()"
+            class="w-24 h-24 rounded-xl bg-gray-700/50 border-2 border-dashed border-gray-600 flex items-center justify-center cursor-pointer hover:bg-gray-700 hover:border-green-500 transition-all duration-300 group">
+            <div class="text-center">
+              <svg class="w-8 h-8 text-gray-400 group-hover:text-green-400 transition-colors duration-300 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
               </svg>
+              <span class="text-xs text-gray-400 group-hover:text-green-400 transition-colors duration-300 mt-1">Ajouter</span>
             </div>
-            <input #fileInput type="file" (change)="onFileSelected($event)"
-              multiple accept="image/*" class="hidden">
           </div>
+          <input #fileInput type="file" (change)="onFileSelected($event)" multiple accept="image/*" class="hidden">
         </div>
-  
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">Type de
-            déchet</label>
-          <select multiple formControlName="wasteType"
-            class="w-full px-4 py-2 rounded-xl bg-gray-50 border border-gray-200 focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-colors">
-            <option value="plastique">Plastique</option>
-            <option value="verre">Verre</option>
-            <option value="papier">Papier</option>
-            <option value="metal">Métal</option>
-          </select>
-          <div
-            *ngIf="collectRequestForm.get('wasteType')?.touched && collectRequestForm.get('wasteType')?.invalid"
-            class="mt-1 text-sm text-red-600">
-            Veuillez sélectionner au moins un type de déchet
-          </div>
+      </div>
+
+      <!-- Section Type de déchet -->
+      <div class="bg-gray-900/50 rounded-xl p-6 backdrop-blur-sm border border-gray-700/50">
+        <label class="block text-sm font-medium text-green-400 mb-3 flex items-center">
+          <i class="fas fa-recycle mr-2"></i>
+          Type de déchet
+        </label>
+        <select multiple formControlName="wasteType"
+          class="w-full px-4 py-3 rounded-xl bg-gray-800 border border-gray-600 text-white focus:border-green-500 focus:ring-2 focus:ring-green-500/20 transition-all">
+          <option value="plastique">Plastique</option>
+          <option value="verre">Verre</option>
+          <option value="papier">Papier</option>
+          <option value="metal">Métal</option>
+        </select>
+        <div *ngIf="collectRequestForm.get('wasteType')?.touched && collectRequestForm.get('wasteType')?.invalid"
+          class="mt-2 text-sm text-red-400 flex items-center">
+          <i class="fas fa-exclamation-circle mr-2"></i>
+          Veuillez sélectionner au moins un type de déchet
         </div>
-  
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">Poids estimé
-            (g)</label>
+      </div>
+
+      <!-- Section Poids et Adresse -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="bg-gray-900/50 rounded-xl p-6 backdrop-blur-sm border border-gray-700/50">
+          <label class="block text-sm font-medium text-green-400 mb-3 flex items-center">
+            <i class="fas fa-weight mr-2"></i>
+            Poids estimé (g)
+          </label>
           <input type="number" formControlName="estimatedWeight"
-            class="w-full px-4 py-2 rounded-xl bg-gray-50 border border-gray-200 focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-colors"
+            class="w-full px-4 py-3 rounded-xl bg-gray-800 border border-gray-600 text-white focus:border-green-500 focus:ring-2 focus:ring-green-500/20 transition-all"
             [ngClass]="{'border-red-500': collectRequestForm.get('estimatedWeight')?.touched && collectRequestForm.get('estimatedWeight')?.invalid}">
-          <div
-            *ngIf="collectRequestForm.get('estimatedWeight')?.touched && collectRequestForm.get('estimatedWeight')?.invalid"
-            class="mt-1 text-sm text-red-600">
-            <span
-              *ngIf="collectRequestForm.get('estimatedWeight')?.errors?.['required']">Le
-              poids est requis</span>
-            <span
-              *ngIf="collectRequestForm.get('estimatedWeight')?.errors?.['min']">Le
-              poids minimum est de 1000g</span>
+          <div *ngIf="collectRequestForm.get('estimatedWeight')?.touched && collectRequestForm.get('estimatedWeight')?.invalid"
+            class="mt-2 text-sm text-red-400">
+            <span *ngIf="collectRequestForm.get('estimatedWeight')?.errors?.['required']">
+              <i class="fas fa-exclamation-circle mr-1"></i>
+              Le poids est requis
+            </span>
+            <span *ngIf="collectRequestForm.get('estimatedWeight')?.errors?.['min']">
+              <i class="fas fa-exclamation-circle mr-1"></i>
+              Le poids minimum est de 1000g
+            </span>
           </div>
         </div>
-  
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">Adresse de
-            collecte</label>
+
+        <div class="bg-gray-900/50 rounded-xl p-6 backdrop-blur-sm border border-gray-700/50">
+          <label class="block text-sm font-medium text-green-400 mb-3 flex items-center">
+            <i class="fas fa-map-marker-alt mr-2"></i>
+            Adresse de collecte
+          </label>
           <input type="text" formControlName="address"
-            class="w-full px-4 py-2 rounded-xl bg-gray-50 border border-gray-200 focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-colors"
+            class="w-full px-4 py-3 rounded-xl bg-gray-800 border border-gray-600 text-white focus:border-green-500 focus:ring-2 focus:ring-green-500/20 transition-all"
             [ngClass]="{'border-red-500': collectRequestForm.get('address')?.touched && collectRequestForm.get('address')?.invalid}">
-          <div
-            *ngIf="collectRequestForm.get('address')?.touched && collectRequestForm.get('address')?.invalid"
-            class="mt-1 text-sm text-red-600">
+          <div *ngIf="collectRequestForm.get('address')?.touched && collectRequestForm.get('address')?.invalid"
+            class="mt-2 text-sm text-red-400 flex items-center">
+            <i class="fas fa-exclamation-circle mr-2"></i>
             L'adresse est requise
           </div>
         </div>
-  
-        <div class="grid grid-cols-2 gap-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Date
-              souhaitée</label>
-            <input type="date" formControlName="preferredDate"
-              class="w-full px-4 py-2 rounded-xl bg-gray-50 border border-gray-200 focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-colors"
-              [ngClass]="{'border-red-500': collectRequestForm.get('preferredDate')?.touched && collectRequestForm.get('preferredDate')?.invalid}">
+      </div>
 
-            <div *ngIf="collectRequestForm.get('preferredDate')?.touched && collectRequestForm.get('preferredDate')?.invalid" class="text-red-500 text-sm">
-                La date doit être supérieure à aujourd'hui.
-              </div>
-      
-              
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Heure
-              souhaitée (9h-18h)</label>
-            <input type="time" formControlName="preferredTime"
-              class="w-full px-4 py-2 rounded-xl bg-gray-50 border border-gray-200 focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-colors"
-              [ngClass]="{'border-red-500': collectRequestForm.get('preferredTime')?.touched && collectRequestForm.get('preferredTime')?.invalid}">
-            <div
-              *ngIf="collectRequestForm.get('preferredTime')?.touched && collectRequestForm.get('preferredTime')?.invalid"
-              class="mt-1 text-sm text-red-600">
-              <span
-                *ngIf="collectRequestForm.get('preferredTime')?.errors?.['required']">L'heure
-                est requise</span>
-                        
-              <div *ngIf="collectRequestForm.get('preferredTime')?.touched && collectRequestForm.get('preferredTime')?.invalid" class="text-red-500 text-sm">
-                L'heure doit être inférieure à 18:00.
-              </div>
-            </div>
+      <!-- Section Date et Heure -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="bg-gray-900/50 rounded-xl p-6 backdrop-blur-sm border border-gray-700/50">
+          <label class="block text-sm font-medium text-green-400 mb-3 flex items-center">
+            <i class="fas fa-calendar mr-2"></i>
+            Date souhaitée
+          </label>
+          <input type="date" formControlName="preferredDate"
+            class="w-full px-4 py-3 rounded-xl bg-gray-800 border border-gray-600 text-white focus:border-green-500 focus:ring-2 focus:ring-green-500/20 transition-all"
+            [ngClass]="{'border-red-500': collectRequestForm.get('preferredDate')?.touched && collectRequestForm.get('preferredDate')?.invalid}">
+          <div *ngIf="collectRequestForm.get('preferredDate')?.touched && collectRequestForm.get('preferredDate')?.invalid"
+            class="mt-2 text-sm text-red-400 flex items-center">
+            <i class="fas fa-exclamation-circle mr-2"></i>
+            La date doit être supérieure à aujourd'hui
           </div>
         </div>
-  
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">Notes
-            supplémentaires</label>
-          <textarea formControlName="notes" rows="4"
-            class="w-full px-4 py-2 rounded-xl bg-gray-50 border border-gray-200 focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-colors"></textarea>
+
+        <div class="bg-gray-900/50 rounded-xl p-6 backdrop-blur-sm border border-gray-700/50">
+          <label class="block text-sm font-medium text-green-400 mb-3 flex items-center">
+            <i class="fas fa-clock mr-2"></i>
+            Heure souhaitée (9h-18h)
+          </label>
+          <input type="time" formControlName="preferredTime"
+            class="w-full px-4 py-3 rounded-xl bg-gray-800 border border-gray-600 text-white focus:border-green-500 focus:ring-2 focus:ring-green-500/20 transition-all"
+            [ngClass]="{'border-red-500': collectRequestForm.get('preferredTime')?.touched && collectRequestForm.get('preferredTime')?.invalid}">
+          <div *ngIf="collectRequestForm.get('preferredTime')?.touched && collectRequestForm.get('preferredTime')?.invalid"
+            class="mt-2 text-sm text-red-400">
+            <span *ngIf="collectRequestForm.get('preferredTime')?.errors?.['required']">
+              <i class="fas fa-exclamation-circle mr-1"></i>
+              L'heure est requise
+            </span>
+            <span *ngIf="collectRequestForm.get('preferredTime')?.errors?.['timeRange']">
+              <i class="fas fa-exclamation-circle mr-1"></i>
+              L'heure doit être entre 9h et 18h
+            </span>
+          </div>
         </div>
-  
-        <div class="flex justify-end space-x-4 pt-6">
-          <button type="button"
-            class="px-6 py-2 rounded-xl border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors">
-            Annuler
-          </button>
-          <button type="submit"
-            [disabled]="collectRequestForm.invalid"
-            class="px-6 py-2 rounded-xl bg-green-500 text-white hover:bg-green-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-            Soumettre
-          </button>
-        </div>
-      </form>
-    </div>
+      </div>
+
+      <!-- Section Notes -->
+      <div class="bg-gray-900/50 rounded-xl p-6 backdrop-blur-sm border border-gray-700/50">
+        <label class="block text-sm font-medium text-green-400 mb-3 flex items-center">
+          <i class="fas fa-comment-alt mr-2"></i>
+          Notes supplémentaires
+        </label>
+        <textarea formControlName="notes" rows="4"
+          class="w-full px-4 py-3 rounded-xl bg-gray-800 border border-gray-600 text-white focus:border-green-500 focus:ring-2 focus:ring-green-500/20 transition-all resize-none"></textarea>
+      </div>
+
+      <!-- Boutons -->
+      <div class="flex justify-end space-x-4 pt-6">
+        <button type="button"
+          class="px-6 py-3 rounded-xl border border-gray-600 text-gray-300 hover:bg-gray-700 hover:text-white transition-all duration-300 flex items-center">
+          <i class="fas fa-times mr-2"></i>
+          Annuler
+        </button>
+        <button type="submit"
+          [disabled]="collectRequestForm.invalid"
+          class="px-6 py-3 rounded-xl bg-gradient-to-r from-green-600 to-green-500 text-white hover:from-green-700 hover:to-green-600 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-green-500/20 flex items-center">
+          <i class="fas fa-paper-plane mr-2"></i>
+          Soumettre
+        </button>
+      </div>
+    </form>
   </div>
+</div>
